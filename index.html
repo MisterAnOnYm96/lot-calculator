@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulyator Lota</title>
+    <title>Lot Kalkulyatori</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -134,10 +134,10 @@
 <body>
 
 <div class="calculator">
-    <h2>Kalkulyator lota</h2>
+    <h2>Lot kalkulyatori</h2>
 
     <div class="form-group">
-        <label>VALYUTA PARASI</label>
+        <label>VALYUTA JUFTLIGI</label>
         <select id="pair" disabled style="background-color: #e9ecef;">
             <option>XAU/USD</option>
         </select>
@@ -145,13 +145,13 @@
 
     <div class="row form-group">
         <div class="col">
-            <label>VALYUTA SCHYOTA</label>
+            <label>HISOB VALYUTASI</label>
             <select id="accountCurrency" disabled style="background-color: #e9ecef;">
                 <option>USD</option>
             </select>
         </div>
         <div class="col">
-            <label>RAZMER SCHYOTA</label>
+            <label>HISOB HAJMI</label>
             <input type="number" id="accountSize" value="40">
         </div>
     </div>
@@ -177,13 +177,13 @@
         <label>STOP-LOSS</label>
         <div class="input-group">
             <input type="number" id="stopLoss" value="10" step="0.1">
-            <span class="suffix">punktov</span>
+            <span class="suffix">punkt</span>
         </div>
     </div>
 
     <div class="checkbox-group">
         <input type="checkbox" id="spread">
-        <label for="spread" style="text-transform: none; margin: 0; font-weight: normal;">Uchityvat spred</label>
+        <label for="spread" style="text-transform: none; margin: 0; font-weight: normal;">Spredni hisobga olish</label>
     </div>
 
     <div class="price-info">
@@ -192,31 +192,30 @@
     </div>
 
     <div class="result-box">
-        <h3>REZULTAT</h3>
-        <div class="lot-result"><span id="resultLot">2,00</span> <span>lotov</span></div>
+        <h3>NATIJA</h3>
+        <div class="lot-result"><span id="resultLot">2,00</span> <span>lot</span></div>
         
         <div class="result-details">
-            <span>Stoimost punkta</span>
+            <span>Punkt qiymati</span>
             <span id="pointValue">1.00 USD</span>
         </div>
         <div class="result-details">
-            <span>Effektivniy stop</span>
-            <span id="effectiveStop">10.0 punktov</span>
+            <span>Samarali stop</span>
+            <span id="effectiveStop">10.0 punkt</span>
         </div>
         <div class="result-details">
-            <span>Raschyotniy risk</span>
+            <span>Hisoblangan risk</span>
             <span id="calculatedRisk">20.00 USD</span>
         </div>
     </div>
 
     <div class="warning">
-        Minimalniy obyom i shag brokera neizvestni.<br>
-        Okruglyayte pokazanniy obyom vniz do razreshyonnogo shaga: okruglenie vverx uvelichivaet risk.
+        Brokerning minimal hajmi va qadami noma'lum.<br>
+        Ko'rsatilgan hajmni ruxsat etilgan qadamgacha pastga yaxlitlang: yuqoriga yaxlitlash riskni oshiradi.
     </div>
 </div>
 
 <script>
-    // Elementlarni olish
     const accountSizeInput = document.getElementById('accountSize');
     const riskPercentInput = document.getElementById('riskPercent');
     const riskAmountInput = document.getElementById('riskAmount');
@@ -237,17 +236,13 @@
         let riskAmount = parseFloat(riskAmountInput.value) || 0;
         let stopLoss = parseFloat(stopLossInput.value) || 1; // 0 ga bo'linishdan qochish
 
-        // Risk % va Risk $ ni o'zaro bog'lash
-        // Agar Risk % o'zgartirilsa, Risk $ ni hisoblash
-        // (Foydalanuvchi tajribasi uchun event listener'lar orqali boshqaramiz)
-        
         // Lot hajmini hisoblash formulasi:
         // Lot = Risk $ / (Stop Loss * 1 punkt qiymati)
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
         // Natijalarni yangilash
         resultLot.textContent = lot.toFixed(2).replace('.', ',');
-        effectiveStop.textContent = stopLoss.toFixed(1) + ' punktov';
+        effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
         calculatedRisk.textContent = riskAmount.toFixed(2) + ' USD';
         
         // Punkt narxi lotga qarab o'zgaradi
