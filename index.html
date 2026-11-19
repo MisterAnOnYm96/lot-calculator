@@ -16,7 +16,7 @@
         .calculator {
             background: #fff;
             width: 100%;
-            max-width: 360px; /* Biroz toraytirildi */
+            max-width: 360px;
             padding: 16px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -32,41 +32,47 @@
         .form-group {
             margin-bottom: 12px;
         }
+        
+        /* Flexbox qatorlari */
         .row {
             display: flex;
-            gap: 10px;
+            gap: 8px; /* Ustunlar orasidagi masofa */
             align-items: flex-end;
         }
         
-        /* Stop-loss qatorini cho'zish va Spreadni o'ngga surish uchun */
-        .col-stop {
-            flex: 1; /* Qolgan barcha bo'sh joyni egallaydi */
-        }
-        .col-spread {
-            flex: 0 0 auto; /* Faqat o'z o'lchamicha joy egallaydi (eng o'ngda) */
-            margin-left: auto;
-        }
+        /* Foizli kengliklar (Flex-basis) */
+        .w-70 { flex: 0 0 70%; max-width: 70%; }
+        .w-30 { flex: 0 0 calc(30% - 8px); max-width: calc(30% - 8px); } /* 30% dan gap ayirildi */
+        
+        .w-45 { flex: 0 0 calc(45% - 6px); max-width: calc(45% - 6px); }
+        .w-35 { flex: 0 0 calc(35% - 6px); max-width: calc(35% - 6px); }
+        .w-20 { flex: 0 0 calc(20% - 6px); max-width: calc(20% - 6px); }
+
+        /* Standart 50/50 */
+        .col-half { flex: 1; min-width: 0; }
 
         label {
             display: block;
-            font-size: 11px; /* Shrift kichraytirildi */
+            font-size: 11px;
             color: #6c757d;
-            text-transform: none; /* Bosh harflar bilan yozilishi uchun bekor qilindi */
+            text-transform: none;
             margin-bottom: 4px;
             font-weight: 600;
+            white-space: nowrap; /* Matn sig'masa ham buzilmasligi uchun */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        /* Kiritish maydonlari */
         input, select {
             width: 100%;
-            padding: 6px 10px; /* Balandlik kamaytirildi */
+            padding: 6px 8px;
             border: 1px solid #ced4da;
             border-radius: 5px;
-            font-size: 14px; /* Shrift kichraytirildi */
+            font-size: 13px;
             box-sizing: border-box;
             outline: none;
             background-color: #fff;
-            height: 32px; /* Aniq balandlik */
+            height: 32px;
         }
         input:focus, select:focus {
             border-color: #80bdff;
@@ -77,7 +83,6 @@
             color: #495057;
         }
         
-        /* Valyuta belgilari (%) va (USD) uchun */
         .input-group {
             position: relative;
             display: flex;
@@ -85,12 +90,13 @@
         }
         .input-group .suffix {
             position: absolute;
-            right: 10px;
+            right: 8px;
             color: #6c757d;
-            font-size: 12px;
+            font-size: 11px;
+            pointer-events: none;
         }
 
-        /* Spread tugmasi dizayni */
+        /* Spread tugmasi */
         .spread-box {
             display: flex;
             flex-direction: column;
@@ -100,8 +106,8 @@
         .spread-btn-container {
             display: flex;
             align-items: center;
-            height: 32px; /* Input balandligiga moslashtirildi */
-            padding-left: 4px;
+            justify-content: center; /* Markazga tekislash */
+            height: 32px;
         }
         .spread-btn-container input[type="checkbox"] {
             width: 18px;
@@ -121,7 +127,6 @@
             margin-bottom: 12px;
         }
         
-        /* Natija qutisi */
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
@@ -131,7 +136,6 @@
         .result-box h3 {
             font-size: 11px;
             color: #6c757d;
-            text-transform: none;
             margin-top: 0;
             margin-bottom: 8px;
         }
@@ -172,58 +176,59 @@
 <div class="calculator">
     <h2>Lot kalkulyatori</h2>
 
-    <div class="form-group">
-        <label>Valyuta juftligi</label>
-        <select id="pair" disabled>
-            <option>XAU/USD</option>
-        </select>
-    </div>
-
+    <!-- 1-QATOR: Valyuta juftligi (70%) va Hisob valyutasi (30%) -->
     <div class="row form-group">
-        <div class="col">
+        <div class="w-70">
+            <label>Valyuta juftligi</label>
+            <select id="pair" disabled>
+                <option>XAU/USD</option>
+            </select>
+        </div>
+        <div class="w-30">
             <label>Hisob valyutasi</label>
             <select id="accountCurrency" disabled>
                 <option>USD</option>
             </select>
         </div>
-        <div class="col">
+    </div>
+
+    <!-- 2-QATOR: Hisob hajmi (45%), Stop-loss (35%), Spread (20%) -->
+    <div class="row form-group">
+        <div class="w-45">
             <label>Hisob hajmi</label>
             <input type="number" id="accountSize" value="40">
         </div>
+        <div class="w-35">
+            <label>Stop-loss</label>
+            <div class="input-group">
+                <input type="number" id="stopLoss" value="10" step="0.1" style="padding-right: 36px;">
+                <span class="suffix">punkt</span>
+            </div>
+        </div>
+        <div class="w-20">
+            <div class="spread-box">
+                <label style="text-align: center;">Spread</label>
+                <div class="spread-btn-container">
+                    <input type="checkbox" id="spread">
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- 3-QATOR: Risk % va Risk $ (50/50) -->
     <div class="row form-group">
-        <div class="col">
+        <div class="col-half">
             <label>Risk %</label>
             <div class="input-group">
                 <input type="number" id="riskPercent" value="50" step="0.1">
                 <span class="suffix">%</span>
             </div>
         </div>
-        <div class="col">
+        <div class="col-half">
             <label>Risk $</label>
             <div class="input-group">
                 <input type="number" id="riskAmount" value="20" step="0.1">
                 <span class="suffix">USD</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stop-loss va Spread (eng o'ngda) -->
-    <div class="row form-group">
-        <div class="col-stop">
-            <label>Stop-loss</label>
-            <div class="input-group">
-                <input type="number" id="stopLoss" value="10" step="0.1">
-                <span class="suffix">punkt</span>
-            </div>
-        </div>
-        <div class="col-spread">
-            <div class="spread-box">
-                <label>Spread</label>
-                <div class="spread-btn-container">
-                    <input type="checkbox" id="spread">
-                </div>
             </div>
         </div>
     </div>
