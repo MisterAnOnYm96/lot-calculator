@@ -33,19 +33,17 @@
             margin-bottom: 12px;
         }
         
-        /* Qatorlar uchun umumiy sozlama */
         .row {
             display: flex;
             gap: 8px;
             align-items: flex-end;
         }
 
-        /* Ustunlar kengligi (foizlarda) */
         .w-70 { width: 70%; }
         .w-30 { width: 30%; }
         .w-45 { width: 45%; }
-        .w-40 { width: 40%; } 
-        .w-15 { width: 15%; } 
+        .w-40 { width: 40%; }
+        .w-15 { width: 15%; }
         .w-50 { width: 50%; }
 
         label {
@@ -57,7 +55,6 @@
             white-space: nowrap;
         }
         
-        /* Kiritish maydonlari */
         input, select {
             width: 100%;
             padding: 6px 8px;
@@ -67,7 +64,7 @@
             box-sizing: border-box;
             outline: none;
             background-color: #fff;
-            height: 32px; 
+            height: 32px;
         }
         input:focus, select:focus {
             border-color: #80bdff;
@@ -78,7 +75,6 @@
             color: #495057;
         }
         
-        /* Valyuta belgilari (%) va (USD) uchun */
         .input-group {
             position: relative;
             display: flex;
@@ -92,7 +88,6 @@
             pointer-events: none;
         }
 
-        /* Spread qutisi (katakchasi) */
         .spread-box {
             display: flex;
             flex-direction: column;
@@ -102,17 +97,17 @@
         .spread-btn-container {
             display: flex;
             align-items: center;
-            height: 32px; 
+            height: 32px;
         }
         .spread-btn-container input[type="checkbox"] {
-            width: 100%; 
+            width: 100%;
             height: 100%;
             cursor: pointer;
             margin: 0;
             border: 1px solid #ced4da;
-            border-radius: 5px; 
+            border-radius: 5px;
             background-color: #fff;
-            appearance: none; 
+            appearance: none;
             -webkit-appearance: none;
             display: flex;
             justify-content: center;
@@ -146,30 +141,38 @@
             margin-top: 5px;
         }
         
-        /* Natija qutisi */
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
             border-radius: 8px;
             padding: 12px;
         }
+        
+        /* "Natija" so'zi kattalashtirildi */
         .result-box h3 {
-            font-size: 11px;
+            font-size: 15px; 
             color: #6c757d;
             margin-top: 0;
             margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+        
+        /* Lot hajmi kattalashtirildi va to'q ko'k rang qilindi */
         .lot-result {
-            font-size: 26px;
+            font-size: 36px;
             font-weight: bold;
-            color: #0d6efd;
+            color: #003366; /* To'q ko'k rang */
             margin-bottom: 12px;
+            line-height: 1.1;
         }
+        
         .lot-result span {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: normal;
             color: #212529;
         }
+        
         .result-details {
             display: flex;
             justify-content: space-between;
@@ -252,6 +255,7 @@
 
     <div class="result-box">
         <h3>Natija</h3>
+        <!-- Lot qiymati to'q ko'k va katta shriftda -->
         <div class="lot-result"><span id="resultLot">2,00</span> <span>lot</span></div>
         
         <div class="result-details">
