@@ -5,200 +5,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lot Kalkulyatori</title>
     <style>
+        /* Qorong'u rejim uchun asosiy sozlamalar */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
+            background-color: #12161f; /* Skrinshotdagi to'q fon rangi */
             display: flex;
             justify-content: center;
             padding: 15px;
             margin: 0;
+            color: #ffffff;
         }
+        
         .calculator {
-            background: #fff;
+            background: transparent;
             width: 100%;
-            max-width: 380px; /* Telefonlar uchun moslashtirilgan kenglik */
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 1px solid #e0e0e0;
+            max-width: 400px;
+            padding: 10px 5px;
             box-sizing: border-box;
         }
-        h2 {
-            font-size: 18px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #212529;
+
+        /* Sarlavhalar va labellarning rangi */
+        label, .label-text {
+            display: block;
+            font-size: 12px;
+            color: #8b95a5; /* Och kulrang */
+            margin-bottom: 6px;
         }
+
+        /* Barcha kiritish maydonchalari (input, select) dizayni */
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: #1c212b; /* Katakcha foni */
+            border: 1px solid #2e3543; /* Katakcha chegarasi */
+            border-radius: 12px; /* Yumaloq burchaklar */
+            font-size: 16px;
+            color: #ffffff;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-appearance: none; /* iOS dagi standart dizaynni o'chirish */
+            appearance: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #3b82f6;
+        }
+
+        /* Select uchun maxsus strelka (o'q) */
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238b95a5%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px top 50%;
+            background-size: 10px auto;
+        }
+        
+        /* O'chirilgan (disabled) maydonlar */
+        input:disabled, select:disabled {
+            background-color: #151921;
+            color: #8b95a5;
+        }
+
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
+
+        /* Ustunlar (qatorlar) */
         .row {
             display: flex;
-            gap: 10px; /* Orasidagi masofa kichraytirildi */
+            gap: 12px;
         }
         .col {
             flex: 1;
-            min-width: 0; /* Elementlar sig'masligini oldini oladi */
-        }
-        label {
-            display: block;
-            font-size: 11px; /* Shrift kichraytirildi */
-            color: #6c757d;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px 10px; /* Ichki masofa kichraytirildi */
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 15px;
-            box-sizing: border-box;
-            outline: none;
-        }
-        input:focus, select:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
-        .input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .input-group .suffix {
-            position: absolute;
-            right: 10px;
-            color: #6c757d;
-            font-size: 13px;
-        }
-        
-        /* Checkbox qismi to'g'rilandi */
-        .checkbox-group {
-            display: flex;
-            align-items: center; /* Markazga tekislash */
-            gap: 8px;
-            font-size: 13px;
-            color: #495057;
-            margin-bottom: 12px;
-            margin-top: 5px;
-            white-space: nowrap; /* Matn yangi qatorga tushishini oldini oladi */
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin: 0;
-            flex-shrink: 0; /* Checkbox kichrayib ketmasligi uchun */
-        }
-        .checkbox-group label {
-            text-transform: none;
-            margin: 0;
-            font-weight: normal;
-            font-size: 13px;
-            cursor: pointer;
+            min-width: 0;
         }
 
-        .price-info {
+        /* BUY / SELL tugmalari dizayni */
+        .toggle-group {
+            display: flex;
+            background-color: #1c212b;
+            border: 1px solid #2e3543;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+        .toggle-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            color: #8b95a5;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-btn.active-buy {
+            background-color: rgba(34, 197, 94, 0.15); /* Yashil fon */
+            color: #22c55e; /* Yashil matn */
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        /* Natija bloki (Foyda / Zarar) */
+        .result-box {
+            background-color: #1c212b;
+            border: 1px solid #2e3543;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .result-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .result-title {
             font-size: 13px;
-            color: #6c757d;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
-            margin-bottom: 12px;
+            color: #8b95a5;
         }
-        .result-box {
-            background-color: #fff;
-            border: 1px solid #ced4da;
+        .result-badge {
+            background-color: #2e3543;
+            padding: 4px 8px;
             border-radius: 6px;
-            padding: 12px;
-        }
-        .result-box h3 {
-            font-size: 11px;
-            color: #6c757d;
-            text-transform: uppercase;
-            margin-top: 0;
-            margin-bottom: 8px;
+            font-size: 12px;
+            color: #8b95a5;
         }
         .lot-result {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
-            color: #0d6efd;
-            margin-bottom: 12px;
+            color: #ffffff;
+            margin-bottom: 15px;
         }
-        .lot-result span {
-            font-size: 15px;
-            font-weight: normal;
-            color: #212529;
-        }
+        
+        /* Natija ichidagi qatorlar */
         .result-details {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 6px;
-            color: #495057;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #8b95a5;
         }
         .result-details span:last-child {
             font-weight: bold;
-            color: #212529;
+            color: #ffffff;
         }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #22c55e; /* Checkbox rangi */
+            margin: 0;
+            border-radius: 4px;
+        }
+        .checkbox-group label {
+            margin: 0;
+            font-size: 14px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
         .warning {
-            font-size: 10px;
+            font-size: 11px;
             color: #6c757d;
-            margin-top: 12px;
-            border-top: 1px solid #dee2e6;
-            padding-top: 8px;
-            line-height: 1.3;
+            margin-top: 20px;
+            text-align: center;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
 <div class="calculator">
-    <h2>Lot kalkulyatori</h2>
-
+    <!-- Instrument (Valyuta juftligi) -->
     <div class="form-group">
-        <label>VALYUTA JUFTLIGI</label>
-        <select id="pair" disabled style="background-color: #e9ecef;">
+        <label class="label-text">Instrument</label>
+        <select id="pair">
             <option>XAU/USD</option>
         </select>
     </div>
 
+    <!-- BUY / SELL -->
+    <label class="label-text">Yo'nalish</label>
+    <div class="toggle-group">
+        <div class="toggle-btn active-buy">BUY</div>
+        <div class="toggle-btn">SELL</div>
+    </div>
+
+    <!-- Depozit va Lot hajmi -->
     <div class="row form-group">
         <div class="col">
-            <label>HISOB VALYUTASI</label>
-            <select id="accountCurrency" disabled style="background-color: #e9ecef;">
-                <option>USD</option>
-            </select>
-        </div>
-        <div class="col">
-            <label>HISOB HAJMI</label>
+            <label class="label-text">Depozit ($)</label>
             <input type="number" id="accountSize" value="40">
         </div>
+        <div class="col">
+            <label class="label-text">Lot hajmi</label>
+            <input type="number" id="lotSizeInput" placeholder="0,01">
+        </div>
+        <div class="col">
+            <label class="label-text">TP/SL</label>
+            <input type="text" placeholder="">
+        </div>
     </div>
 
+    <!-- Narxlar (Ochilish va Yopilish) -->
     <div class="row form-group">
         <div class="col">
-            <label>RISK %</label>
-            <div class="input-group">
-                <input type="number" id="riskPercent" value="50" step="0.1">
-                <span class="suffix">%</span>
-            </div>
+            <label class="label-text">Ochilish narxi</label>
+            <input type="text" placeholder="0000,000" disabled>
         </div>
         <div class="col">
-            <label>RISK $</label>
-            <div class="input-group">
-                <input type="number" id="riskAmount" value="20" step="0.1">
-                <span class="suffix">USD</span>
-            </div>
+            <label class="label-text">Yopilish narxi</label>
+            <input type="text" placeholder="0000,000" disabled>
         </div>
     </div>
 
-    <div class="form-group">
-        <label>STOP-LOSS</label>
-        <div class="input-group">
-            <input type="number" id="stopLoss" value="10" step="0.1">
-            <span class="suffix">punkt</span>
+    <!-- Stop Loss va Take Profit -->
+    <div class="row form-group">
+        <div class="col">
+            <label class="label-text">Stop Loss</label>
+            <input type="text" id="stopLoss" value="10" placeholder="0000,000">
+        </div>
+        <div class="col">
+            <label class="label-text">Take Profit</label>
+            <input type="text" placeholder="0000,000">
+        </div>
+    </div>
+
+    <!-- Hisoblash sozlamalari (Oldingi qismdan) -->
+    <div class="row form-group" style="margin-top: 25px;">
+         <div class="col">
+            <label class="label-text">Risk %</label>
+            <input type="number" id="riskPercent" value="50" step="0.1">
+        </div>
+        <div class="col">
+            <label class="label-text">Risk ($)</label>
+            <input type="number" id="riskAmount" value="20" step="0.1">
         </div>
     </div>
 
@@ -207,15 +255,19 @@
         <label for="spread">Spredni hisobga olish</label>
     </div>
 
-    <div class="price-info">
-        <span>XAU/USD</span>
-        <span>3737.90000</span>
-    </div>
-
+    <!-- Natija (Foyda / Zarar) -->
     <div class="result-box">
-        <h3>NATIJA</h3>
-        <div class="lot-result"><span id="resultLot">2,00</span> <span>lot</span></div>
+        <div class="result-header">
+            <span class="result-title">Foyda / Zarar (Natija)</span>
+            <span class="result-badge">0,00%</span>
+        </div>
         
+        <div class="lot-result">$<span id="calculatedRisk">0,00</span></div>
+        
+        <div class="result-details">
+            <span>XAU/USD (Narx)</span>
+            <span>3737.90000</span>
+        </div>
         <div class="result-details">
             <span>Punkt qiymati</span>
             <span id="pointValue">1.00 USD</span>
@@ -225,28 +277,30 @@
             <span id="effectiveStop">10.0 punkt</span>
         </div>
         <div class="result-details">
-            <span>Hisoblangan risk</span>
-            <span id="calculatedRisk">20.00 USD</span>
+            <span>Hisoblangan lot</span>
+            <span id="resultLot">2,00 lot</span>
         </div>
     </div>
 
     <div class="warning">
-        Brokerning minimal hajmi va qadami noma'lum.<br>
-        Ko'rsatilgan hajmni ruxsat etilgan qadamgacha pastga yaxlitlang: yuqoriga yaxlitlash riskni oshiradi.
+        Minimal hajm va broker qadami noma'lum.<br>Hajmni pastga qarab yaxlitlang.
     </div>
 </div>
 
 <script>
+    // Elementlarni olish
     const accountSizeInput = document.getElementById('accountSize');
     const riskPercentInput = document.getElementById('riskPercent');
     const riskAmountInput = document.getElementById('riskAmount');
     const stopLossInput = document.getElementById('stopLoss');
+    const lotSizeInput = document.getElementById('lotSizeInput');
 
     const resultLot = document.getElementById('resultLot');
     const pointValue = document.getElementById('pointValue');
     const effectiveStop = document.getElementById('effectiveStop');
     const calculatedRisk = document.getElementById('calculatedRisk');
 
+    // XAU/USD uchun 1 lot = 100 untsiya. 1 punkt = 0.01 narx o'zgarishi.
     const valuePerPointPerLot = 1.00; 
 
     function calculate() {
@@ -255,21 +309,27 @@
         let riskAmount = parseFloat(riskAmountInput.value) || 0;
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
 
+        // Lot hajmini hisoblash formulasi
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
-        resultLot.textContent = lot.toFixed(2).replace('.', ',');
+        // Natijalarni yangilash
+        resultLot.textContent = lot.toFixed(2).replace('.', ',') + ' lot';
         effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
-        calculatedRisk.textContent = riskAmount.toFixed(2) + ' USD';
+        calculatedRisk.textContent = riskAmount.toFixed(2).replace('.', ',');
         
+        // Katta harf bilan yozilgan Lot hajmi maydoniga avtomatik qo'yish
+        lotSizeInput.value = lot.toFixed(2).replace('.', ',');
+        
+        // Punkt narxi
         let currentPointValue = lot * valuePerPointPerLot;
         pointValue.textContent = currentPointValue.toFixed(2) + ' USD';
     }
 
+    // Hodisalar (Event Listeners)
     riskPercentInput.addEventListener('input', function() {
         let accountSize = parseFloat(accountSizeInput.value) || 0;
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
-        let newRiskAmount = (accountSize * riskPercent) / 100;
-        riskAmountInput.value = newRiskAmount.toFixed(2);
+        riskAmountInput.value = ((accountSize * riskPercent) / 100).toFixed(2);
         calculate();
     });
 
@@ -277,8 +337,7 @@
         let accountSize = parseFloat(accountSizeInput.value) || 0;
         let riskAmount = parseFloat(riskAmountInput.value) || 0;
         if (accountSize > 0) {
-            let newRiskPercent = (riskAmount / accountSize) * 100;
-            riskPercentInput.value = newRiskPercent.toFixed(2);
+            riskPercentInput.value = ((riskAmount / accountSize) * 100).toFixed(2);
         }
         calculate();
     });
@@ -286,13 +345,13 @@
     accountSizeInput.addEventListener('input', function() {
         let accountSize = parseFloat(accountSizeInput.value) || 0;
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
-        let newRiskAmount = (accountSize * riskPercent) / 100;
-        riskAmountInput.value = newRiskAmount.toFixed(2);
+        riskAmountInput.value = ((accountSize * riskPercent) / 100).toFixed(2);
         calculate();
     });
 
     stopLossInput.addEventListener('input', calculate);
 
+    // Dastlabki holatda hisoblash
     calculate();
 </script>
 
