@@ -5,33 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lot Kalkulyatori</title>
     <style>
-        /* Asosiy fon va matn rangi */
+        /* Asosiy fon rangi (Dark Navy) */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1a202c; /* To'q ko'k-kulrang (dark navy) */
+            background-color: #1a202c; /* To'q ko'k-kulrang */
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 15px;
             margin: 0;
-            color: #e2e8f0; /* Asosiy matn rangi (och kulrang-oq) */
+            box-sizing: border-box;
         }
 
+        /* Kalkulyator oynasi (Karta) */
         .calculator {
-            background: #1e293b; /* Kalkulyator kartasi foni (bir oz yorqinroq to'q ko'k) */
+            background-color: #2d3748; /* Kartaning foni, fondan biroz yorqinroq */
             width: 100%;
             max-width: 380px;
             padding: 20px;
-            border-radius: 12px; /* Yumaloq burchaklar */
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            border: 1px solid #334155; /* Ingichka chegara */
+            border-radius: 16px; /* Katta yumaloq burchak */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* Chuqur soya */
+            border: 1px solid #4a5568;
             box-sizing: border-box;
         }
 
         h2 {
-            font-size: 18px;
+            font-size: 20px;
             margin-top: 0;
             margin-bottom: 20px;
-            color: #ffffff; /* Sarlavha oq rangda */
+            color: #f7fafc;
+            text-align: center;
+            letter-spacing: 0.5px;
         }
 
         .form-group {
@@ -40,7 +45,7 @@
 
         .row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .col {
@@ -48,42 +53,51 @@
             min-width: 0;
         }
 
-        /* Yorliqlar (Ustki yozuvlar) */
         label {
             display: block;
             font-size: 11px;
-            color: #94a3b8; /* Och kulrang */
+            color: #a0aec0; /* Och kulrang matn */
             text-transform: uppercase;
             margin-bottom: 6px;
             font-weight: 600;
             letter-spacing: 0.5px;
         }
 
-        /* Kiritish maydonchalari (Input va Select) */
+        /* Kiritish maydonchalari va Selectlar */
         input, select {
             width: 100%;
-            padding: 10px 12px;
-            background-color: #0f172a; /* Qoraytirilgan fon */
-            border: 1px solid #334155; /* Ingichka chegara */
-            border-radius: 8px; /* Yumaloq burchak */
+            padding: 12px 14px;
+            background-color: #1a202c; /* Maydonlar foni */
+            border: 1px solid #4a5568; /* Hoshiya */
+            border-radius: 10px; /* Yumaloq burchak */
             font-size: 15px;
-            color: #f8fafc; /* Kiritilgan matn oq */
+            color: #e2e8f0; /* Matn rangi */
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.3s ease;
         }
 
-        /* Fokus (tanlanganda) holati */
+        /* Fokus bo'lgandagi holat */
         input:focus, select:focus {
-            border-color: #3b82f6; /* Ko'k chegara */
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
         }
 
         /* O'chirilgan (disabled) maydonlar */
         input:disabled, select:disabled {
-            background-color: #1e293b;
-            color: #64748b;
+            background-color: #2d3748;
+            color: #718096;
             cursor: not-allowed;
+        }
+
+        /* Orqa fondagi strelkalarni (select uchun) o'zgartirish */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px top 50%;
+            background-size: 10px auto;
+            padding-right: 30px;
         }
 
         .input-group {
@@ -92,109 +106,110 @@
             align-items: center;
         }
 
-        /* Valyuta va o'lchov birliklari (%) */
         .input-group .suffix {
             position: absolute;
-            right: 12px;
-            color: #94a3b8;
+            right: 14px;
+            color: #a0aec0;
             font-size: 13px;
-            pointer-events: none; /* Bosishni to'sib qo'ymaslik uchun */
+            pointer-events: none;
         }
 
         /* Checkbox qismi */
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 13px;
-            color: #cbd5e1;
+            color: #cbd5e0;
             margin-bottom: 15px;
             margin-top: 5px;
             white-space: nowrap;
         }
 
         .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             margin: 0;
-            flex-shrink: 0;
-            accent-color: #3b82f6; /* Checkbox rangi */
+            accent-color: #3182ce; /* Checkbox rangi */
             cursor: pointer;
+            flex-shrink: 0;
+            border-radius: 4px;
         }
 
         .checkbox-group label {
             text-transform: none;
             margin: 0;
-            font-weight: normal;
+            font-weight: 500;
             font-size: 13px;
-            color: #cbd5e1;
             cursor: pointer;
+            color: #cbd5e0;
         }
 
-        /* Narx ma'lumoti qatori */
+        /* Narx ma'lumoti */
         .price-info {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #94a3b8;
-            padding: 10px 0;
-            border-bottom: 1px solid #334155;
+            color: #a0aec0;
+            padding: 12px 0;
+            border-top: 1px dashed #4a5568;
+            border-bottom: 1px dashed #4a5568;
             margin-bottom: 15px;
         }
 
         /* Natija qutisi */
         .result-box {
-            background-color: #0f172a; /* Qoraytirilgan natija qutisi */
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 15px;
+            background-color: #1a202c; /* Natija foni to'qroq */
+            border: 1px solid #4a5568;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .result-box h3 {
             font-size: 11px;
-            color: #94a3b8;
+            color: #a0aec0;
             text-transform: uppercase;
             margin-top: 0;
             margin-bottom: 10px;
             letter-spacing: 1px;
         }
 
-        /* Lot natijasi */
         .lot-result {
             font-size: 32px;
             font-weight: bold;
-            color: #60a5fa; /* Yorqin ko'k rang */
+            color: #63b3ed; /* Yorqin ko'k rang */
             margin-bottom: 15px;
         }
 
         .lot-result span {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: normal;
-            color: #cbd5e1;
+            color: #cbd5e0;
         }
 
-        /* Natija detallari */
         .result-details {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
             margin-bottom: 8px;
-            color: #94a3b8;
+            color: #a0aec0;
         }
 
         .result-details span:last-child {
             font-weight: bold;
-            color: #f8fafc; /* Qiymatlar oq rangda */
+            color: #e2e8f0;
         }
 
         /* Ogohlantirish matni */
         .warning {
-            font-size: 11px;
-            color: #64748b;
+            font-size: 10px;
+            color: #718096;
             margin-top: 15px;
-            border-top: 1px solid #334155;
-            padding-top: 12px;
-            line-height: 1.5;
+            border-top: 1px solid #4a5568;
+            padding-top: 10px;
+            line-height: 1.4;
+            text-align: center;
         }
     </style>
 </head>
