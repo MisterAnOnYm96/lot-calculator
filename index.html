@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lot Kalkulyatori (To'g'rilangan)</title>
+    <title>Lot Kalkulyatori</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -242,12 +242,12 @@
         <div class="lot-result"><span id="resultLot">0.40</span> <span>lot</span></div>
         
         <div class="result-details">
-            <span>Punkt qiymati (1 lot uchun)</span>
-            <span id="pointValue">0.10 USD</span>
+            <span>1 lot uchun stop-loss zarari</span>
+            <span id="pointValue">100.00 USD</span>
         </div>
         <div class="result-details">
             <span>Samarali stop</span>
-            <span id="effectiveStop">1000.0 punkt</span>
+            <span id="effectiveStop">1000 punkt</span>
         </div>
         <div class="result-details">
             <span>Hisoblangan risk</span>
@@ -268,7 +268,7 @@
     const calculatedRisk = document.getElementById('calculatedRisk');
     const goldPriceDisplay = document.getElementById('goldPrice');
 
-    // TO'G'RILANDI: Rasmga ko'ra 1 lot uchun 1 punkt narxi $0.10 ga teng
+    // 1 lot uchun 1 punkt narxi
     const valuePerPointPerLot = 0.10; 
 
     function parseFormattedNumber(str) {
@@ -296,11 +296,14 @@
 
         resultLot.textContent = lot.toFixed(2); 
         
-        effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
+        // Samarali stop (butun qiymatda)
+        effectiveStop.textContent = Math.round(stopLoss) + ' punkt';
+        
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
-        // 1 lot uchun 1 punkt narxi doimiy $0.10 bo'lib qoladi
-        pointValue.textContent = valuePerPointPerLot.toFixed(2) + ' USD';
+        // 1 lot uchun stop-lossdagi zarar
+        let stopLossDamageForOneLot = stopLoss * valuePerPointPerLot;
+        pointValue.textContent = formatNumber(stopLossDamageForOneLot) + ' USD';
     }
 
     function formatInputWithCaret(inputElement) {
@@ -387,7 +390,7 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    // Boshlang'ich qiymatlarni rasmga moslashtirish
+    // Boshlang'ich qiymatlar
     accountSizeInput.value = "40.00";
     riskPercentInput.value = "100";
     riskAmountInput.value = "40.00";
