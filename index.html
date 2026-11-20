@@ -94,7 +94,6 @@
             height: 32px;
             justify-content: center; 
         }
-        /* Spread katakchasi 30px qilindi */
         .spread-btn-container input[type="checkbox"] {
             width: 30px; 
             height: 30px; 
@@ -149,10 +148,11 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
+        /* Lot natijasi: Qalin va yashil rang */
         .lot-result {
             font-size: 36px;
             font-weight: bold;
-            color: #003366;
+            color: #28a745;
             margin-bottom: 12px;
             line-height: 1.1;
         }
@@ -161,6 +161,7 @@
             font-weight: normal;
             color: #212529;
         }
+        /* Natija qatorlari: Qalin emas */
         .result-details {
             display: flex;
             justify-content: space-between;
@@ -169,7 +170,7 @@
             color: #495057;
         }
         .result-details span:last-child {
-            font-weight: bold;
+            font-weight: normal; /* Qalinlik olib tashlandi */
             color: #212529;
         }
     </style>
@@ -312,7 +313,6 @@
         let value = inputElement.value;
         let caretPos = inputElement.selectionStart;
         
-        // Faqat raqamlar va vergulni qoldirish
         let rawValue = value.replace(/[^\d,]/g, '');
         
         if (!rawValue) {
@@ -320,21 +320,17 @@
             return;
         }
 
-        // Kursor pozitsiyasini hisoblash
         let digitCountBeforeCaret = value.substring(0, caretPos).replace(/[^\d]/g, '').length;
         
-        // Sonni qismlarga ajratish
         let parts = rawValue.split(',');
         let intPart = parts[0];
         let decPart = parts.length > 1 ? ',' + parts[1].substring(0, 2) : '';
         
-        // Mingliklarga ajratish
         let formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         let formattedValue = formattedInt + decPart;
         
         inputElement.value = formattedValue;
         
-        // Kursorni to'g'ri joyga qaytarish
         let newCaretPos = 0;
         let digitsFound = 0;
         for (let i = 0; i < formattedValue.length; i++) {
@@ -350,7 +346,6 @@
         inputElement.setSelectionRange(newCaretPos, newCaretPos);
     }
 
-    // Risk % o'zgarganda
     riskPercentInput.addEventListener('input', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
@@ -360,7 +355,6 @@
         calculate();
     });
 
-    // Risk $ yozilayotganda
     riskAmountInput.addEventListener('input', function() {
         formatInputWithCaret(riskAmountInput);
         
@@ -374,7 +368,6 @@
         calculate();
     });
 
-    // Deposit yozilayotganda
     accountSizeInput.addEventListener('input', function() {
         formatInputWithCaret(accountSizeInput);
         
@@ -386,7 +379,6 @@
         calculate();
     });
 
-    // Fokus yo'qolganda to'liq formatlash (.00 qo'shish)
     accountSizeInput.addEventListener('blur', function() {
         let val = parseFormattedNumber(accountSizeInput.value);
         accountSizeInput.value = formatNumber(val);
@@ -401,7 +393,6 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    // Dastlabki yuklanganda
     accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
     riskAmountInput.value = formatNumber(parseFormattedNumber(riskAmountInput.value));
     
