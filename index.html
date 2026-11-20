@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lot Kalkulyatori</title>
+    <title>Lot Kalkulyatori (To'g'rilangan)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -140,32 +140,26 @@
             border-radius: 8px;
             padding: 12px;
         }
-        
-        /* "Natija" so'zi biroz kattalashtirildi, lekin oraliq kichraytirildi */
         .result-box h3 {
             font-size: 16px; 
             color: #6c757d;
             margin-top: 0;
-            margin-bottom: 2px; /* Oraliq kichraytirildi */
+            margin-bottom: 2px; 
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-        
-        /* Lot qiymati va shrift o'lchami saqlandi, oraliq kichraytirildi */
         .lot-result {
             font-size: 38px; 
             font-weight: 900; 
             color: #28a745;
-            margin-bottom: 8px; /* Pastki oraliq kichraytirildi */
+            margin-bottom: 8px; 
             line-height: 1.1;
         }
-        
         .lot-result span {
             font-size: 20px;
             font-weight: normal;
             color: #212529;
         }
-        
         .result-details {
             display: flex;
             justify-content: space-between;
@@ -207,7 +201,7 @@
         <div class="w-40">
             <label>Stop-loss</label>
             <div class="input-group">
-                <input type="number" id="stopLoss" value="10" step="0.1">
+                <input type="number" id="stopLoss" value="1000" step="1">
                 <span class="suffix">punkt</span>
             </div>
         </div>
@@ -225,14 +219,14 @@
         <div class="w-50">
             <label>Risk %</label>
             <div class="input-group">
-                <input type="number" id="riskPercent" value="50" step="0.1">
+                <input type="number" id="riskPercent" value="100" step="0.1">
                 <span class="suffix">%</span>
             </div>
         </div>
         <div class="w-50">
             <label>Risk $</label>
             <div class="input-group">
-                <input type="text" id="riskAmount" value="20.00">
+                <input type="text" id="riskAmount" value="40.00">
                 <span class="suffix">USD</span>
             </div>
         </div>
@@ -240,24 +234,24 @@
 
     <div class="price-info">
         <span>XAUUSD</span>
-        <span class="price-value" id="goldPrice">3737.900</span>
+        <span class="price-value" id="goldPrice">4390.000</span>
     </div>
 
     <div class="result-box">
         <h3>Natija</h3>
-        <div class="lot-result"><span id="resultLot">2.00</span> <span>lot</span></div>
+        <div class="lot-result"><span id="resultLot">0.40</span> <span>lot</span></div>
         
         <div class="result-details">
-            <span>Punkt qiymati</span>
-            <span id="pointValue">1.00 USD</span>
+            <span>Punkt qiymati (1 lot uchun)</span>
+            <span id="pointValue">0.10 USD</span>
         </div>
         <div class="result-details">
             <span>Samarali stop</span>
-            <span id="effectiveStop">10.0 punkt</span>
+            <span id="effectiveStop">1000.0 punkt</span>
         </div>
         <div class="result-details">
             <span>Hisoblangan risk</span>
-            <span id="calculatedRisk">20.00 USD</span>
+            <span id="calculatedRisk">40.00 USD</span>
         </div>
     </div>
 </div>
@@ -274,7 +268,8 @@
     const calculatedRisk = document.getElementById('calculatedRisk');
     const goldPriceDisplay = document.getElementById('goldPrice');
 
-    const valuePerPointPerLot = 1.00; 
+    // TO'G'RILANDI: Rasmga ko'ra 1 lot uchun 1 punkt narxi $0.10 ga teng
+    const valuePerPointPerLot = 0.10; 
 
     function parseFormattedNumber(str) {
         if (!str) return 0;
@@ -290,16 +285,13 @@
         return intPart + '.' + decPart;
     }
 
-    function formatGoldPrice(price) {
-        return price.toFixed(3); 
-    }
-
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
 
+        // Lot hisoblash formulasi
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
         resultLot.textContent = lot.toFixed(2); 
@@ -307,8 +299,8 @@
         effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
-        let currentPointValue = lot * valuePerPointPerLot;
-        pointValue.textContent = formatNumber(currentPointValue) + ' USD';
+        // 1 lot uchun 1 punkt narxi doimiy $0.10 bo'lib qoladi
+        pointValue.textContent = valuePerPointPerLot.toFixed(2) + ' USD';
     }
 
     function formatInputWithCaret(inputElement) {
@@ -395,11 +387,14 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
-    riskAmountInput.value = formatNumber(parseFormattedNumber(riskAmountInput.value));
+    // Boshlang'ich qiymatlarni rasmga moslashtirish
+    accountSizeInput.value = "40.00";
+    riskPercentInput.value = "100";
+    riskAmountInput.value = "40.00";
+    stopLossInput.value = "1000";
     
-    let initialPrice = 3737.9; 
-    goldPriceDisplay.textContent = formatGoldPrice(initialPrice);
+    let initialPrice = 4390.000; 
+    goldPriceDisplay.textContent = initialPrice.toFixed(3);
 
     calculate();
 </script>
