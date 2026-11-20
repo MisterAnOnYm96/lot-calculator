@@ -148,7 +148,7 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-        /* Lot natijasi: Qalin va yashil rang */
+        /* Lot natijasi */
         .lot-result {
             font-size: 36px;
             font-weight: bold;
@@ -161,7 +161,6 @@
             font-weight: normal;
             color: #212529;
         }
-        /* Natija qatorlari: Qalin emas */
         .result-details {
             display: flex;
             justify-content: space-between;
@@ -170,7 +169,7 @@
             color: #495057;
         }
         .result-details span:last-child {
-            font-weight: normal; /* Qalinlik olib tashlandi */
+            font-weight: normal; 
             color: #212529;
         }
     </style>
@@ -198,7 +197,7 @@
     <div class="row form-group">
         <div class="w-45">
             <label>Deposit ($)</label>
-            <input type="text" id="accountSize" value="40,00">
+            <input type="text" id="accountSize" value="40.00">
         </div>
         <div class="w-40">
             <label>Stop-loss</label>
@@ -228,7 +227,7 @@
         <div class="w-50">
             <label>Risk $</label>
             <div class="input-group">
-                <input type="text" id="riskAmount" value="20,00">
+                <input type="text" id="riskAmount" value="20.00">
                 <span class="suffix">USD</span>
             </div>
         </div>
@@ -241,11 +240,11 @@
 
     <div class="result-box">
         <h3>Natija</h3>
-        <div class="lot-result"><span id="resultLot">2,00</span> <span>lot</span></div>
+        <div class="lot-result"><span id="resultLot">2.00</span> <span>lot</span></div>
         
         <div class="result-details">
             <span>Punkt qiymati</span>
-            <span id="pointValue">1,00 USD</span>
+            <span id="pointValue">1.00 USD</span>
         </div>
         <div class="result-details">
             <span>Samarali stop</span>
@@ -253,7 +252,7 @@
         </div>
         <div class="result-details">
             <span>Hisoblangan risk</span>
-            <span id="calculatedRisk">20,00 USD</span>
+            <span id="calculatedRisk">20.00 USD</span>
         </div>
     </div>
 </div>
@@ -276,15 +275,19 @@
     
     function parseFormattedNumber(str) {
         if (!str) return 0;
+        // Bo'sh joylarni olib tashlaymiz. Vergulni ham nuqtaga almashtiramiz, chunki foydalanuvchi vergul kiritishi mumkin.
         let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
         return parseFloat(cleanStr) || 0;
     }
 
+    // Pul formatlash (nuqta bilan, mingliklar probel bilan)
     function formatNumber(num) {
-        return num.toLocaleString('ru-RU', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
+        let parts = num.toFixed(2).split('.');
+        let intPart = parts[0];
+        let decPart = parts[1];
+        // Mingliklarga ajratish
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        return intPart + '.' + decPart;
     }
 
     function formatGoldPrice(price) {
@@ -300,7 +303,9 @@
 
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
-        resultLot.textContent = lot.toFixed(2).replace('.', ',');
+        // Lot formatini nuqta bilan chiqarish
+        resultLot.textContent = lot.toFixed(2); 
+        
         effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
@@ -308,23 +313,25 @@
         pointValue.textContent = formatNumber(currentPointValue) + ' USD';
     }
 
-    // Yozish vaqtida mingliklarga ajratish va kursorni saqlash funksiyasi
+    // Yozish vaqtida mingliklarga ajratish va kursorni saqlash (endi nuqta ishlatiladi)
     function formatInputWithCaret(inputElement) {
         let value = inputElement.value;
         let caretPos = inputElement.selectionStart;
         
-        let rawValue = value.replace(/[^\d,]/g, '');
+        // Faqat raqamlar va nuqtani qoldirish
+        let rawValue = value.replace(/[^\d.]/g, '');
         
         if (!rawValue) {
             inputElement.value = '';
             return;
         }
 
+        // Kursor pozitsiyasini hisoblash
         let digitCountBeforeCaret = value.substring(0, caretPos).replace(/[^\d]/g, '').length;
         
-        let parts = rawValue.split(',');
+        let parts = rawValue.split('.');
         let intPart = parts[0];
-        let decPart = parts.length > 1 ? ',' + parts[1].substring(0, 2) : '';
+        let decPart = parts.length > 1 ? '.' + parts[1].substring(0, 2) : '';
         
         let formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         let formattedValue = formattedInt + decPart;
@@ -393,6 +400,7 @@
 
     stopLossInput.addEventListener('input', calculate);
 
+    // Dastlabki qiymatlarni formatlash
     accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
     riskAmountInput.value = formatNumber(parseFormattedNumber(riskAmountInput.value));
     
