@@ -92,12 +92,11 @@
             display: flex;
             align-items: center;
             height: 32px;
-            /* Kvadrat shaklda bo'lishi uchun markazga tekislash */
             justify-content: center; 
         }
         .spread-btn-container input[type="checkbox"] {
-            width: 24px; /* Kvadrat o'lchami */
-            height: 24px; /* Kvadrat o'lchami */
+            width: 24px;
+            height: 24px;
             cursor: pointer;
             margin: 0;
             border: 1px solid #ced4da;
@@ -130,6 +129,11 @@
             border-bottom: 1px solid #dee2e6;
             margin-bottom: 12px;
             margin-top: 5px;
+        }
+        /* XAU/USD narxi uchun maxsus uslub */
+        .price-value {
+            font-weight: bold;
+            color: #212529;
         }
         .result-box {
             background-color: #fff;
@@ -192,8 +196,7 @@
 
     <div class="row form-group">
         <div class="w-45">
-            <label>Deposit ($)</label> <!-- $ belgisi qo'shildi -->
-            <!-- type="text" qilindi, formatlash ishlashi uchun -->
+            <label>Deposit ($)</label>
             <input type="text" id="accountSize" value="40,00">
         </div>
         <div class="w-40">
@@ -232,7 +235,8 @@
 
     <div class="price-info">
         <span>XAU/USD</span>
-        <span>3737.90000</span>
+        <!-- Bu yerda ID orqali JS dan qiymat beriladi -->
+        <span class="price-value" id="goldPrice">3737.900</span>
     </div>
 
     <div class="result-box">
@@ -264,24 +268,35 @@
     const pointValue = document.getElementById('pointValue');
     const effectiveStop = document.getElementById('effectiveStop');
     const calculatedRisk = document.getElementById('calculatedRisk');
+    const goldPriceDisplay = document.getElementById('goldPrice');
 
     const valuePerPointPerLot = 1.00; 
 
     // --- Yordamchi funksiyalar ---
     
-    // Matndan faqat raqam va nuqtani ajratib olish (1 000,50 -> 1000.50)
+    // Matndan sonni ajratib olish
     function parseFormattedNumber(str) {
         if (!str) return 0;
         let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
         return parseFloat(cleanStr) || 0;
     }
 
-    // Sonni chiroyli formatlash (1000.5 -> "1 000,50")
+    // Pul birliklari uchun formatlash (1 000,00)
     function formatNumber(num) {
         return num.toLocaleString('ru-RU', { 
             minimumFractionDigits: 2, 
             maximumFractionDigits: 2 
         });
+    }
+
+    // XAU/USD narxi uchun formatlash (3737.900 -> 3 737.900)
+    function formatGoldPrice(price) {
+        // Avval standart formatlash (ru-RU) qilamiz, keyin vergulni nuqtaga almashtiramiz
+        let formatted = price.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 3, 
+            maximumFractionDigits: 3 
+        });
+        return formatted.replace(',', '.');
     }
 
     // --- Asosiy hisoblash logikasi ---
@@ -293,7 +308,6 @@
 
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
-        // Natijalarni chiqarish
         resultLot.textContent = lot.toFixed(2).replace('.', ',');
         effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
@@ -324,14 +338,13 @@
         calculate();
     });
 
-    // Deposit o'zgarganda (Blurdan chiqqanda formatlash yaxshiroq ishlaydi)
+    // Deposit o'zgarganda
     accountSizeInput.addEventListener('blur', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         accountSizeInput.value = formatNumber(accountSize);
         calculate();
     });
     
-    // Yozayotganda hisoblash (formatlashsiz)
     accountSizeInput.addEventListener('input', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
@@ -344,8 +357,12 @@
     // Stop-loss o'zgarganda
     stopLossInput.addEventListener('input', calculate);
 
-    // Dastlabki yuklanganda formatlash
+    // Dastlabki yuklanganda
     accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
+    
+    // XAU/USD narxini dastlabki formatlash
+    let initialPrice = 3737.9; // Statik narx
+    goldPriceDisplay.textContent = formatGoldPrice(initialPrice);
 
     // Dastlabki hisoblash
     calculate();
