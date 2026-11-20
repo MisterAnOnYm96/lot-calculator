@@ -1,27 +1,315 @@
-// --- biquote orqali real vaqtda narxni olish ---
-    const priceDisplay = document.getElementById('livePrice');
-
-    async function fetchGoldPrice() {
-        try {
-            // biquote API - API key kerak emas
-            const response = await fetch('https://api.biquote.io/v1/quote?symbol=XAUUSD');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            
-            // biquote qaytadigan format: { mid: 1234.56, ... } yoki { price: ... }
-            let price = data.mid || data.price || data.ask;
-            if (price) {
-                priceDisplay.textContent = Number(price).toFixed(5);
-                priceDisplay.classList.remove('price-flash');
-                void priceDisplay.offsetWidth; // animatsiyani qayta ishga tushirish
-                priceDisplay.classList.add('price-flash');
-            }
-        } catch (error) {
-            console.warn('Narxni yangilab bo\'lmadi, statik qiymat qoldirildi:', error.message);
-            // Xatolik bo'lsa, hech narsa qilmaymiz, eski narx qoladi
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lot Kalkulyatori</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
         }
+        .calculator {
+            background: #fff;
+            width: 100%;
+            max-width: 380px;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            box-sizing: border-box;
+        }
+        h2 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #212529;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .w-70 { width: 70%; }
+        .w-30 { width: 30%; }
+        .w-45 { width: 45%; }
+        .w-40 { width: 40%; }
+        .w-15 { width: 15%; }
+        .w-50 { width: 50%; }
+        label {
+            display: block;
+            font-size: 11px;
+            color: #6c757d;
+            margin-bottom: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        input, select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            background-color: #fff;
+            height: 32px;
+        }
+        input:focus, select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        input:disabled, select:disabled {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-group .suffix {
+            position: absolute;
+            right: 6px;
+            color: #6c757d;
+            font-size: 11px;
+            pointer-events: none;
+        }
+        .spread-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100%;
+        }
+        .spread-btn-container {
+            display: flex;
+            align-items: center;
+            height: 32px;
+        }
+        .spread-btn-container input[type="checkbox"] {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            margin: 0;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            background-color: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .spread-btn-container input[type="checkbox"]:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .spread-btn-container input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .price-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6c757d;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 12px;
+            margin-top: 5px;
+        }
+        .result-box {
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .result-box h3 {
+            font-size: 15px;
+            color: #6c757d;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .lot-result {
+            font-size: 36px;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+        .lot-result span {
+            font-size: 18px;
+            font-weight: normal;
+            color: #212529;
+        }
+        .result-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+            color: #495057;
+        }
+        .result-details span:last-child {
+            font-weight: bold;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>Lot kalkulyatori</h2>
+
+    <div class="row form-group">
+        <div class="w-70">
+            <label>Valyuta juftligi</label>
+            <select id="pair" disabled>
+                <option>XAU/USD</option>
+            </select>
+        </div>
+        <div class="w-30">
+            <label>Valyuta</label>
+            <select id="accountCurrency" disabled>
+                <option>USD</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="w-45">
+            <label>Deposit</label>
+            <input type="number" id="accountSize" value="40">
+        </div>
+        <div class="w-40">
+            <label>Stop-loss</label>
+            <div class="input-group">
+                <input type="number" id="stopLoss" value="10" step="0.1">
+                <span class="suffix">punkt</span>
+            </div>
+        </div>
+        <div class="w-15">
+            <div class="spread-box">
+                <label>Spread</label>
+                <div class="spread-btn-container">
+                    <input type="checkbox" id="spread">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="w-50">
+            <label>Risk %</label>
+            <div class="input-group">
+                <input type="number" id="riskPercent" value="50" step="0.1">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+        <div class="w-50">
+            <label>Risk $</label>
+            <div class="input-group">
+                <input type="number" id="riskAmount" value="20" step="0.1">
+                <span class="suffix">USD</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="price-info">
+        <span>XAU/USD</span>
+        <span>3737.90000</span>
+    </div>
+
+    <div class="result-box">
+        <h3>Natija</h3>
+        <div class="lot-result"><span id="resultLot">2,00</span> <span>lot</span></div>
+        
+        <div class="result-details">
+            <span>Punkt qiymati</span>
+            <span id="pointValue">1.00 USD</span>
+        </div>
+        <div class="result-details">
+            <span>Samarali stop</span>
+            <span id="effectiveStop">10.0 punkt</span>
+        </div>
+        <div class="result-details">
+            <span>Hisoblangan risk</span>
+            <span id="calculatedRisk">20.00 USD</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const accountSizeInput = document.getElementById('accountSize');
+    const riskPercentInput = document.getElementById('riskPercent');
+    const riskAmountInput = document.getElementById('riskAmount');
+    const stopLossInput = document.getElementById('stopLoss');
+
+    const resultLot = document.getElementById('resultLot');
+    const pointValue = document.getElementById('pointValue');
+    const effectiveStop = document.getElementById('effectiveStop');
+    const calculatedRisk = document.getElementById('calculatedRisk');
+
+    const valuePerPointPerLot = 1.00; 
+
+    function calculate() {
+        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let riskPercent = parseFloat(riskPercentInput.value) || 0;
+        let riskAmount = parseFloat(riskAmountInput.value) || 0;
+        let stopLoss = parseFloat(stopLossInput.value) || 1; 
+
+        let lot = riskAmount / (stopLoss * valuePerPointPerLot);
+
+        resultLot.textContent = lot.toFixed(2).replace('.', ',');
+        effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
+        calculatedRisk.textContent = riskAmount.toFixed(2) + ' USD';
+        
+        let currentPointValue = lot * valuePerPointPerLot;
+        pointValue.textContent = currentPointValue.toFixed(2) + ' USD';
     }
 
-    // Sahifa yuklanganda va har 1 daqiqada (60 soniya) narxni yangilash
-    fetchGoldPrice();
-    setInterval(fetchGoldPrice, 60000);
+    riskPercentInput.addEventListener('input', function() {
+        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let riskPercent = parseFloat(riskPercentInput.value) || 0;
+        let newRiskAmount = (accountSize * riskPercent) / 100;
+        riskAmountInput.value = newRiskAmount.toFixed(2);
+        calculate();
+    });
+
+    riskAmountInput.addEventListener('input', function() {
+        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let riskAmount = parseFloat(riskAmountInput.value) || 0;
+        if (accountSize > 0) {
+            let newRiskPercent = (riskAmount / accountSize) * 100;
+            riskPercentInput.value = newRiskPercent.toFixed(2);
+        }
+        calculate();
+    });
+
+    accountSizeInput.addEventListener('input', function() {
+        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let riskPercent = parseFloat(riskPercentInput.value) || 0;
+        let newRiskAmount = (accountSize * riskPercent) / 100;
+        riskAmountInput.value = newRiskAmount.toFixed(2);
+        calculate();
+    });
+
+    stopLossInput.addEventListener('input', calculate);
+
+    calculate();
+</script>
+
+</body>
+</html>
