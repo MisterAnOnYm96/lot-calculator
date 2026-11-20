@@ -242,8 +242,8 @@
         <div class="lot-result"><span id="resultLot">0.40</span> <span>lot</span></div>
         
         <div class="result-details">
-            <span>1 lot uchun stop-loss zarari</span>
-            <span id="pointValue">100.00 USD</span>
+            <span>1 lot zarari</span>
+            <span id="pointValue">-100.00 USD</span>
         </div>
         <div class="result-details">
             <span>Samarali stop</span>
@@ -268,7 +268,6 @@
     const calculatedRisk = document.getElementById('calculatedRisk');
     const goldPriceDisplay = document.getElementById('goldPrice');
 
-    // 1 lot uchun 1 punkt narxi
     const valuePerPointPerLot = 0.10; 
 
     function parseFormattedNumber(str) {
@@ -291,19 +290,17 @@
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
 
-        // Lot hisoblash formulasi
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
         resultLot.textContent = lot.toFixed(2); 
         
-        // Samarali stop (butun qiymatda)
         effectiveStop.textContent = Math.round(stopLoss) + ' punkt';
         
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
-        // 1 lot uchun stop-lossdagi zarar
+        // 1 lot zarari (minus ishora bilan)
         let stopLossDamageForOneLot = stopLoss * valuePerPointPerLot;
-        pointValue.textContent = formatNumber(stopLossDamageForOneLot) + ' USD';
+        pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
     }
 
     function formatInputWithCaret(inputElement) {
@@ -390,7 +387,6 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    // Boshlang'ich qiymatlar
     accountSizeInput.value = "40.00";
     riskPercentInput.value = "100";
     riskAmountInput.value = "40.00";
