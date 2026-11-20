@@ -94,10 +94,10 @@
             height: 32px;
             justify-content: center; 
         }
-        /* Spread katakchasi kattalashtirildi */
+        /* Spread katakchasi 30px qilindi */
         .spread-btn-container input[type="checkbox"] {
-            width: 28px; 
-            height: 28px; 
+            width: 30px; 
+            height: 30px; 
             cursor: pointer;
             margin: 0;
             border: 1px solid #ced4da;
@@ -117,7 +117,7 @@
         .spread-btn-container input[type="checkbox"]:checked::after {
             content: '✓';
             color: white;
-            font-size: 18px; /* Belgisi ham biroz kattalashtirildi */
+            font-size: 20px; 
             font-weight: bold;
         }
         .price-info {
@@ -131,9 +131,8 @@
             margin-bottom: 12px;
             margin-top: 5px;
         }
-        /* XAU/USD narxi uchun uslub */
         .price-value {
-            color: #495057; /* Qalin emas, oddiy rang */
+            color: #495057; 
             font-weight: normal; 
         }
         .result-box {
@@ -236,7 +235,6 @@
 
     <div class="price-info">
         <span>XAU/USD</span>
-        <!-- Narx joyi -->
         <span class="price-value" id="goldPrice">3737.900</span>
     </div>
 
@@ -288,9 +286,7 @@
         });
     }
 
-    // XAU/USD narxi uchun formatlash (3737.900 shaklida)
     function formatGoldPrice(price) {
-        // Hech qanday probel (minglik) qo'shmaymiz, faqat nuqta bilan ajratib, 3 xona qoldiramiz
         return price.toFixed(3); 
     }
 
@@ -311,6 +307,50 @@
         pointValue.textContent = formatNumber(currentPointValue) + ' USD';
     }
 
+    // Yozish vaqtida mingliklarga ajratish va kursorni saqlash funksiyasi
+    function formatInputWithCaret(inputElement) {
+        let value = inputElement.value;
+        let caretPos = inputElement.selectionStart;
+        
+        // Faqat raqamlar va vergulni qoldirish
+        let rawValue = value.replace(/[^\d,]/g, '');
+        
+        if (!rawValue) {
+            inputElement.value = '';
+            return;
+        }
+
+        // Kursor pozitsiyasini hisoblash
+        let digitCountBeforeCaret = value.substring(0, caretPos).replace(/[^\d]/g, '').length;
+        
+        // Sonni qismlarga ajratish
+        let parts = rawValue.split(',');
+        let intPart = parts[0];
+        let decPart = parts.length > 1 ? ',' + parts[1].substring(0, 2) : '';
+        
+        // Mingliklarga ajratish
+        let formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        let formattedValue = formattedInt + decPart;
+        
+        inputElement.value = formattedValue;
+        
+        // Kursorni to'g'ri joyga qaytarish
+        let newCaretPos = 0;
+        let digitsFound = 0;
+        for (let i = 0; i < formattedValue.length; i++) {
+            if (/\d/.test(formattedValue[i])) {
+                digitsFound++;
+            }
+            if (digitsFound === digitCountBeforeCaret) {
+                newCaretPos = i + 1;
+                break;
+            }
+        }
+        if (digitCountBeforeCaret === 0) newCaretPos = 0;
+        inputElement.setSelectionRange(newCaretPos, newCaretPos);
+    }
+
+    // Risk % o'zgarganda
     riskPercentInput.addEventListener('input', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
@@ -320,7 +360,10 @@
         calculate();
     });
 
+    // Risk $ yozilayotganda
     riskAmountInput.addEventListener('input', function() {
+        formatInputWithCaret(riskAmountInput);
+        
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         
@@ -331,13 +374,10 @@
         calculate();
     });
 
-    accountSizeInput.addEventListener('blur', function() {
-        let accountSize = parseFormattedNumber(accountSizeInput.value);
-        accountSizeInput.value = formatNumber(accountSize);
-        calculate();
-    });
-    
+    // Deposit yozilayotganda
     accountSizeInput.addEventListener('input', function() {
+        formatInputWithCaret(accountSizeInput);
+        
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let newRiskAmount = (accountSize * riskPercent) / 100;
@@ -346,12 +386,25 @@
         calculate();
     });
 
+    // Fokus yo'qolganda to'liq formatlash (.00 qo'shish)
+    accountSizeInput.addEventListener('blur', function() {
+        let val = parseFormattedNumber(accountSizeInput.value);
+        accountSizeInput.value = formatNumber(val);
+        calculate();
+    });
+
+    riskAmountInput.addEventListener('blur', function() {
+        let val = parseFormattedNumber(riskAmountInput.value);
+        riskAmountInput.value = formatNumber(val);
+        calculate();
+    });
+
     stopLossInput.addEventListener('input', calculate);
 
     // Dastlabki yuklanganda
     accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
+    riskAmountInput.value = formatNumber(parseFormattedNumber(riskAmountInput.value));
     
-    // Narxni dastlabki formatlash (3737.900)
     let initialPrice = 3737.9; 
     goldPriceDisplay.textContent = formatGoldPrice(initialPrice);
 
