@@ -92,14 +92,16 @@
             display: flex;
             align-items: center;
             height: 32px;
+            /* Kvadrat shaklda bo'lishi uchun markazga tekislash */
+            justify-content: center; 
         }
         .spread-btn-container input[type="checkbox"] {
-            width: 100%;
-            height: 100%;
+            width: 24px; /* Kvadrat o'lchami */
+            height: 24px; /* Kvadrat o'lchami */
             cursor: pointer;
             margin: 0;
             border: 1px solid #ced4da;
-            border-radius: 5px;
+            border-radius: 4px;
             background-color: #fff;
             appearance: none;
             -webkit-appearance: none;
@@ -190,9 +192,9 @@
 
     <div class="row form-group">
         <div class="w-45">
-            <label>Deposit</label>
-            <!-- Bu yerga 1 000 kabi qiymat kiritish uchun type="text" qildik -->
-            <input type="text" id="accountSize" value="40">
+            <label>Deposit ($)</label> <!-- $ belgisi qo'shildi -->
+            <!-- type="text" qilindi, formatlash ishlashi uchun -->
+            <input type="text" id="accountSize" value="40,00">
         </div>
         <div class="w-40">
             <label>Stop-loss</label>
@@ -222,7 +224,6 @@
         <div class="w-50">
             <label>Risk $</label>
             <div class="input-group">
-                <!-- Risk $ ni ham matn sifatida formatlash uchun type="text" -->
                 <input type="text" id="riskAmount" value="20,00">
                 <span class="suffix">USD</span>
             </div>
@@ -271,7 +272,6 @@
     // Matndan faqat raqam va nuqtani ajratib olish (1 000,50 -> 1000.50)
     function parseFormattedNumber(str) {
         if (!str) return 0;
-        // Barcha probellarni olib tashlaymiz va vergulni nuqtaga almashtiramiz
         let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
         return parseFloat(cleanStr) || 0;
     }
@@ -319,13 +319,19 @@
         
         if (accountSize > 0) {
             let newRiskPercent = (riskAmount / accountSize) * 100;
-            // Risk % ni yaxlitlab yozamiz (masalan: 50.5%)
             riskPercentInput.value = parseFloat(newRiskPercent.toFixed(2));
         }
         calculate();
     });
 
-    // Deposit (Hisob hajmi) o'zgarganda
+    // Deposit o'zgarganda (Blurdan chiqqanda formatlash yaxshiroq ishlaydi)
+    accountSizeInput.addEventListener('blur', function() {
+        let accountSize = parseFormattedNumber(accountSizeInput.value);
+        accountSizeInput.value = formatNumber(accountSize);
+        calculate();
+    });
+    
+    // Yozayotganda hisoblash (formatlashsiz)
     accountSizeInput.addEventListener('input', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
@@ -337,6 +343,9 @@
 
     // Stop-loss o'zgarganda
     stopLossInput.addEventListener('input', calculate);
+
+    // Dastlabki yuklanganda formatlash
+    accountSizeInput.value = formatNumber(parseFormattedNumber(accountSizeInput.value));
 
     // Dastlabki hisoblash
     calculate();
