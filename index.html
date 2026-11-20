@@ -180,9 +180,9 @@
 
     <div class="row form-group">
         <div class="w-70">
-            <label>Valyuta juftligi</label>
+            <label>Instrument</label> <!-- O'zgartirildi -->
             <select id="pair" disabled>
-                <option>XAUUSD</option> <!-- O'zgartirildi -->
+                <option>XAUUSD</option>
             </select>
         </div>
         <div class="w-30">
@@ -233,7 +233,7 @@
     </div>
 
     <div class="price-info">
-        <span>XAUUSD</span> <!-- O'zgartirildi -->
+        <span>XAUUSD</span>
         <span class="price-value" id="goldPrice">3737.900</span>
     </div>
 
@@ -270,8 +270,6 @@
 
     const valuePerPointPerLot = 1.00; 
 
-    // --- Yordamchi funksiyalar ---
-    
     function parseFormattedNumber(str) {
         if (!str) return 0;
         let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
@@ -290,7 +288,6 @@
         return price.toFixed(3); 
     }
 
-    // --- Asosiy hisoblash logikasi ---
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
