@@ -191,7 +191,8 @@
     <div class="row form-group">
         <div class="w-45">
             <label>Deposit</label>
-            <input type="number" id="accountSize" value="40">
+            <!-- Bu yerga 1 000 kabi qiymat kiritish uchun type="text" qildik -->
+            <input type="text" id="accountSize" value="40">
         </div>
         <div class="w-40">
             <label>Stop-loss</label>
@@ -221,7 +222,8 @@
         <div class="w-50">
             <label>Risk $</label>
             <div class="input-group">
-                <input type="number" id="riskAmount" value="20" step="0.1">
+                <!-- Risk $ ni ham matn sifatida formatlash uchun type="text" -->
+                <input type="text" id="riskAmount" value="20,00">
                 <span class="suffix">USD</span>
             </div>
         </div>
@@ -238,7 +240,7 @@
         
         <div class="result-details">
             <span>Punkt qiymati</span>
-            <span id="pointValue">1.00 USD</span>
+            <span id="pointValue">1,00 USD</span>
         </div>
         <div class="result-details">
             <span>Samarali stop</span>
@@ -246,7 +248,7 @@
         </div>
         <div class="result-details">
             <span>Hisoblangan risk</span>
-            <span id="calculatedRisk">20.00 USD</span>
+            <span id="calculatedRisk">20,00 USD</span>
         </div>
     </div>
 </div>
@@ -264,50 +266,79 @@
 
     const valuePerPointPerLot = 1.00; 
 
+    // --- Yordamchi funksiyalar ---
+    
+    // Matndan faqat raqam va nuqtani ajratib olish (1 000,50 -> 1000.50)
+    function parseFormattedNumber(str) {
+        if (!str) return 0;
+        // Barcha probellarni olib tashlaymiz va vergulni nuqtaga almashtiramiz
+        let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
+        return parseFloat(cleanStr) || 0;
+    }
+
+    // Sonni chiroyli formatlash (1000.5 -> "1 000,50")
+    function formatNumber(num) {
+        return num.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
+
+    // --- Asosiy hisoblash logikasi ---
     function calculate() {
-        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
-        let riskAmount = parseFloat(riskAmountInput.value) || 0;
+        let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
 
         let lot = riskAmount / (stopLoss * valuePerPointPerLot);
 
+        // Natijalarni chiqarish
         resultLot.textContent = lot.toFixed(2).replace('.', ',');
         effectiveStop.textContent = stopLoss.toFixed(1) + ' punkt';
-        calculatedRisk.textContent = riskAmount.toFixed(2) + ' USD';
+        calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
         let currentPointValue = lot * valuePerPointPerLot;
-        pointValue.textContent = currentPointValue.toFixed(2) + ' USD';
+        pointValue.textContent = formatNumber(currentPointValue) + ' USD';
     }
 
+    // Risk % o'zgarganda
     riskPercentInput.addEventListener('input', function() {
-        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let newRiskAmount = (accountSize * riskPercent) / 100;
-        riskAmountInput.value = newRiskAmount.toFixed(2);
+        
+        riskAmountInput.value = formatNumber(newRiskAmount);
         calculate();
     });
 
+    // Risk $ o'zgarganda
     riskAmountInput.addEventListener('input', function() {
-        let accountSize = parseFloat(accountSizeInput.value) || 0;
-        let riskAmount = parseFloat(riskAmountInput.value) || 0;
+        let accountSize = parseFormattedNumber(accountSizeInput.value);
+        let riskAmount = parseFormattedNumber(riskAmountInput.value);
+        
         if (accountSize > 0) {
             let newRiskPercent = (riskAmount / accountSize) * 100;
-            riskPercentInput.value = newRiskPercent.toFixed(2);
+            // Risk % ni yaxlitlab yozamiz (masalan: 50.5%)
+            riskPercentInput.value = parseFloat(newRiskPercent.toFixed(2));
         }
         calculate();
     });
 
+    // Deposit (Hisob hajmi) o'zgarganda
     accountSizeInput.addEventListener('input', function() {
-        let accountSize = parseFloat(accountSizeInput.value) || 0;
+        let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let newRiskAmount = (accountSize * riskPercent) / 100;
-        riskAmountInput.value = newRiskAmount.toFixed(2);
+        
+        riskAmountInput.value = formatNumber(newRiskAmount);
         calculate();
     });
 
+    // Stop-loss o'zgarganda
     stopLossInput.addEventListener('input', calculate);
 
+    // Dastlabki hisoblash
     calculate();
 </script>
 
