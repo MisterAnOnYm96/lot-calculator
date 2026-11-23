@@ -85,13 +85,12 @@
             pointer-events: none;
         }
         
-        /* SETS QISMI TO'G'RILANDI */
         .sets-box {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             height: 100%;
-            align-items: center; /* Markazga tekislash */
+            align-items: center;
         }
         .sets-box label {
             text-align: center;
@@ -171,7 +170,6 @@
             color: #495057;
         }
         
-        /* O'CHIQ HOLATDAGI MAYDONLAR UCHUN */
         .price-info-grid.disabled input {
             background-color: #e9ecef;
             color: #495057;
@@ -280,7 +278,6 @@
         </div>
     </div>
 
-    <!-- 2 QATOR: STANDART HOLATDA O'CHIQ -->
     <div class="price-info-grid disabled" id="priceInfoGrid">
         <div class="price-row">
             <div class="price-col">
@@ -358,21 +355,31 @@
         return intPart + '.' + decPart;
     }
 
+    // YANGILANGAN HISOBLASH FUNKSIYASI (Stop-loss + Spread)
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
+        
+        // Spread qiymatini olish (agar Sets o'chiq bo'lsa 0.000 bo'ladi)
+        let spread = parseFloat(spreadValueInput.value) || 0;
 
-        let lot = riskAmount / (stopLoss * valuePerPointPerLot);
+        // Stop-loss + Spread (Samarali stop)
+        let effectiveStopValue = stopLoss + spread;
+
+        // Lot hisoblash
+        let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
         resultLot.textContent = lot.toFixed(2); 
         
-        effectiveStop.textContent = Math.round(stopLoss) + ' punkt';
+        // Samarali stopni ko'rsatish (butun son)
+        effectiveStop.textContent = Math.round(effectiveStopValue) + ' punkt';
         
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
-        let stopLossDamageForOneLot = stopLoss * valuePerPointPerLot;
+        // 1 lot zarari (Stop-loss + Spread) * 0.10
+        let stopLossDamageForOneLot = effectiveStopValue * valuePerPointPerLot;
         pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
     }
 
@@ -383,6 +390,9 @@
         let spread = Math.abs(ask - bid); 
         
         spreadValueInput.value = spread.toFixed(3);
+        
+        // Spread o'zgarganda qayta hisoblash
+        calculate();
     }
 
     function formatLeverage() {
@@ -445,22 +455,25 @@
         inputElement.setSelectionRange(newCaretPos, newCaretPos);
     }
 
-    // SETS CHECKBOX HODISASI
     setsCheckbox.addEventListener('change', function() {
         const isChecked = this.checked;
         
-        // Inputlarni aktiv yoki o'chiq qilish
         askPriceInput.disabled = !isChecked;
         bidPriceInput.disabled = !isChecked;
         leverageValueInput.disabled = !isChecked;
         spreadValueInput.disabled = !isChecked;
         
-        // Grid klassini o'zgartirish
         if (isChecked) {
             priceInfoGrid.classList.remove('disabled');
         } else {
             priceInfoGrid.classList.add('disabled');
+            // Sets o'chirilganda spread 0 ga qaytishi kerak (ixtiyoriy)
+            // spreadValueInput.value = "0.000"; 
+            // calculate(); 
         }
+        
+        // O'zgarishdan keyin qayta hisoblash (agar kerak bo'lsa)
+        calculate();
     });
 
     riskPercentInput.addEventListener('input', function() {
