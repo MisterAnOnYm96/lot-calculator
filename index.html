@@ -180,7 +180,7 @@
             opacity: 0.6;
         }
         
-        /* YANGILANGAN NATIJA PANELI */
+        /* NATIJA PANELI */
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
@@ -227,11 +227,12 @@
         
         /* QIYMATLAR FORMATI (Katta, qalin, to'q ko'k) */
         .rec-card .card-value {
-            font-size: 24px; /* Katta shrift */
-            font-weight: 900; /* Qalin */
-            color: #0066ff; /* To'q ko'k */
+            font-size: 24px;
+            font-weight: 900;
+            color: #0066ff;
             line-height: 1.1;
         }
+        /* LOT VA USD SO'ZLARI UCHUN KICHIK SHRIFT */
         .rec-card .card-value span {
             font-size: 14px;
             font-weight: 900;
@@ -320,7 +321,6 @@
         </div>
     </div>
 
-    <!-- YANGILANGAN NATIJA QISMI -->
     <div class="result-box">
         <h3>Tavsiya qilingan</h3>
         
@@ -423,7 +423,8 @@
             
             let margin = (accountSize * leverageNum) / (currentPrice * lot);
             
-            recLotMargin.textContent = formatNumber(margin) + ' USD';
+            // USD so'zini kichik shriftda chiqarish
+            recLotMargin.innerHTML = formatNumber(margin) + ' <span>USD</span>';
         } else {
             // Sets o'chirilgan bo'lsa, "-" ko'rsatiladi
             recLotMargin.textContent = '-';
