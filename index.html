@@ -180,17 +180,19 @@
             opacity: 0.6;
         }
         
+        /* YANGI NATIJA PANELI STILLARI */
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
             border-radius: 8px;
             padding: 12px;
+            text-align: center;
         }
         .result-box h3 {
-            font-size: 16px; 
+            font-size: 14px; 
             color: #6c757d;
             margin-top: 0;
-            margin-bottom: 2px; 
+            margin-bottom: 8px; 
             font-weight: 600;
             letter-spacing: 0.5px;
         }
@@ -198,7 +200,7 @@
             font-size: 38px; 
             font-weight: 900; 
             color: #0066ff;
-            margin-bottom: 8px; 
+            margin-bottom: 12px; 
             line-height: 1.1;
         }
         .lot-result span {
@@ -206,16 +208,42 @@
             font-weight: 900;
             color: #0066ff;
         }
-        .result-details {
+
+        .recommendation-box {
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 6px;
-            color: #495057;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 12px;
         }
-        .result-details span:last-child {
-            font-weight: normal; 
+        .recommendation-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 4px;
+        }
+        .recommendation-cards {
+            display: flex;
+            gap: 8px;
+        }
+        .rec-card {
+            flex: 1;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: left;
+        }
+        .rec-card .card-label {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .rec-card .card-value {
+            font-size: 15px;
             color: #212529;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -282,12 +310,10 @@
         <div class="price-row">
             <div class="price-col">
                 <label>Ask</label>
-                <!-- TYPE TEXT QILINDI -->
                 <input type="text" id="askPrice" value="4390.000" disabled>
             </div>
             <div class="price-col">
                 <label>Bid</label>
-                <!-- TYPE TEXT QILINDI -->
                 <input type="text" id="bidPrice" value="4390.000" disabled>
             </div>
         </div>
@@ -303,21 +329,23 @@
         </div>
     </div>
 
+    <!-- YANGILANGAN NATIJA QISMI -->
     <div class="result-box">
-        <h3>Natija</h3>
+        <h3>Tavsiya qilingan</h3>
+        
         <div class="lot-result"><span id="resultLot">0.40</span> <span>lot</span></div>
         
-        <div class="result-details">
-            <span>1 lot zarari</span>
-            <span id="pointValue">-100.00 USD</span>
-        </div>
-        <div class="result-details">
-            <span>Samarali stop</span>
-            <span id="effectiveStop">1000 punkt</span>
-        </div>
-        <div class="result-details">
-            <span>Hisoblangan risk</span>
-            <span id="calculatedRisk">40.00 USD</span>
+        <div class="recommendation-box">
+            <div class="recommendation-cards">
+                <div class="rec-card">
+                    <div class="card-label">Lot hajmi</div>
+                    <div class="card-value" id="recLotSize">0.40</div>
+                </div>
+                <div class="rec-card">
+                    <div class="card-label">Lot marjasi</div>
+                    <div class="card-value" id="recLotMargin">20.00 USD</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -329,9 +357,8 @@
     const stopLossInput = document.getElementById('stopLoss');
 
     const resultLot = document.getElementById('resultLot');
-    const pointValue = document.getElementById('pointValue');
-    const effectiveStop = document.getElementById('effectiveStop');
-    const calculatedRisk = document.getElementById('calculatedRisk');
+    const recLotSize = document.getElementById('recLotSize');
+    const recLotMargin = document.getElementById('recLotMargin');
     
     const askPriceInput = document.getElementById('askPrice');
     const bidPriceInput = document.getElementById('bidPrice');
@@ -375,7 +402,6 @@
         return intPart + '.' + decPart;
     }
 
-    // ASK VA BID NI 0.000 FORMATIGA KELTIRISH
     function formatPrice(inputElement) {
         let rawValue = inputElement.value.replace(/[^\d.]/g, '');
         let num = parseFloat(rawValue) || 0;
@@ -390,25 +416,28 @@
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
         
-        // AGAR SETS O'CHIQ BO'LSA SPREAD = 0
         let spread = 0;
         if (setsCheckbox.checked) {
             spread = parseFloat(spreadValueInput.value) || 0;
         }
 
-        // FORMULA: Stop-loss + (Spread * 1000) [faqat Sets yoqilganda]
         let effectiveStopValue = stopLoss + (spread * 1000);
 
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
         resultLot.textContent = lot.toFixed(2); 
+        recLotSize.textContent = lot.toFixed(2);
+
+        // LOT MARJASI HISOBLASH
+        // Lot Margin = (deposit × Leverage) / (Joriy narx × lot hajmi qiymati)
+        let leverageStr = leverageValueInput.value; // "1:20000"
+        let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
         
-        effectiveStop.textContent = Math.round(effectiveStopValue) + ' punkt';
+        let currentPrice = parseFloat(askPriceInput.value) || 4390.000; // Joriy narx sifatida Ask olinadi
         
-        calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
+        let margin = (accountSize * leverageNum) / (currentPrice * lot);
         
-        let stopLossDamageForOneLot = effectiveStopValue * valuePerPointPerLot;
-        pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
+        recLotMargin.textContent = formatNumber(margin) + ' USD';
     }
 
     function calculateSpread() {
@@ -546,9 +575,7 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    // ASK VA BID INPUT HODISALARI
     askPriceInput.addEventListener('input', function() {
-        // Yozish paytida faqat raqam va nuqtaga ruxsat
         this.value = this.value.replace(/[^\d.]/g, '');
         calculateSpread();
     });
@@ -567,13 +594,12 @@
     leverageValueInput.addEventListener('input', function() {
         formatLeverage();
         saveData();
+        calculate(); // Leverage o'zgarganda marja qayta hisoblansin
     });
     leverageValueInput.addEventListener('keyup', formatLeverage);
 
-    // SAHIFA YUKLANGANDA MA'LUMOTLARNI TIKLASH
     loadSavedData();
 
-    // Boshlang'ich qiymatlar (agar LocalStorage da ma'lumot bo'lmasa)
     if (!localStorage.getItem('askPrice')) askPriceInput.value = "4390.000";
     if (!localStorage.getItem('bidPrice')) bidPriceInput.value = "4390.000";
     if (!localStorage.getItem('leverageValue')) leverageValueInput.value = "1:20000";
