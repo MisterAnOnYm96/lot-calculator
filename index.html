@@ -121,15 +121,13 @@
             font-weight: bold;
         }
 
-        /* YANGI NARX MA'LUMOTLARI UCHUN STILLAR */
+        /* YANGI NARX MA'LUMOTLARI UCHUN STILLAR (ORALIQLAR TO'G'RILANDI) */
         .price-info-grid {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
-            margin-bottom: 12px;
-            margin-top: 5px;
+            gap: 12px; /* Orasi form-group bilan bir xil bo'ldi */
+            margin-bottom: 12px; /* Pastki oraliq ham bir xil */
+            margin-top: 0;
         }
         .price-row {
             display: flex;
@@ -143,7 +141,7 @@
         .price-col label {
             font-size: 11px;
             color: #6c757d;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
         .price-col input {
@@ -264,7 +262,7 @@
         </div>
     </div>
 
-    <!-- YANGI 2 QATOR -->
+    <!-- YANGI 2 QATOR (ORALIQLAR BIR XIL) -->
     <div class="price-info-grid">
         <div class="price-row">
             <div class="price-col">
@@ -318,7 +316,6 @@
     const effectiveStop = document.getElementById('effectiveStop');
     const calculatedRisk = document.getElementById('calculatedRisk');
     
-    // Yangi elementlar
     const askPriceInput = document.getElementById('askPrice');
     const bidPriceInput = document.getElementById('bidPrice');
     const spreadValueInput = document.getElementById('spreadValue');
@@ -358,28 +355,43 @@
         pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
     }
 
-    // SPREAD HISOBLASH (Ask - Bid)
     function calculateSpread() {
         let ask = parseFloat(askPriceInput.value) || 0;
         let bid = parseFloat(bidPriceInput.value) || 0;
         
-        // Spread = Ask - Bid (manfiy bo'lib qolmasligi uchun Math.abs ishlatildi)
         let spread = Math.abs(ask - bid); 
         
         spreadValueInput.value = spread.toFixed(3);
     }
 
-    // LEVERAGE FORMATLASH (Faqat raqamlarni qabul qiladi, boshiga "1:" qo'shadi)
+    // LEVERAGE TO'G'RILANDI (KURSOR SAQLANADI VA FAQAT RAQAMLAR KIRITILADI)
     function formatLeverage() {
-        let rawValue = leverageValueInput.value;
+        let input = leverageValueInput;
+        let rawValue = input.value;
         
-        // Barcha raqam bo'lmagan belgilarni o'chirish (masalan, "1:" ni olib tashlash)
-        let numbersOnly = rawValue.replace(/[^\d]/g, '');
+        // "1:" dan keyingi qismni ajratib olish
+        let afterColon = rawValue.substring(2);
         
-        if (numbersOnly === '') {
-            leverageValueInput.value = '1:';
-        } else {
-            leverageValueInput.value = '1:' + numbersOnly;
+        // Faqat raqamlarni qoldirish
+        let numbersOnly = afterColon.replace(/[^\d]/g, '');
+        
+        // Yangi qiymatni yaratish
+        let formatted = '1:' + numbersOnly;
+        
+        // Kursor pozitsiyasini saqlab qolish
+        let caretPos = input.selectionStart;
+        let oldLen = rawValue.length;
+        
+        // Agar qiymat o'zgargan bo'lsa, yangilash
+        if (rawValue !== formatted) {
+            input.value = formatted;
+            
+            // Kursor pozitsiyasini moslashtirish
+            let newPos = caretPos + (formatted.length - oldLen);
+            if (newPos < 2) newPos = 2; // "1:" dan oldinga o'tib bo'lmaydi
+            if (newPos > formatted.length) newPos = formatted.length;
+            
+            input.setSelectionRange(newPos, newPos);
         }
     }
 
@@ -467,13 +479,12 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    // Yangi maydonlar uchun event listenerlar
     askPriceInput.addEventListener('input', calculateSpread);
     bidPriceInput.addEventListener('input', calculateSpread);
     
-    // Leverage kiritishni cheklash
+    // Leverage uchun input va keyup (kursor bilan ishlash uchun)
     leverageValueInput.addEventListener('input', formatLeverage);
-    leverageValueInput.addEventListener('blur', formatLeverage);
+    leverageValueInput.addEventListener('keyup', formatLeverage);
 
     // Boshlang'ich qiymatlar
     accountSizeInput.value = "40.00";
