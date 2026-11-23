@@ -180,7 +180,7 @@
             opacity: 0.6;
         }
         
-        /* YANGI NATIJA PANELI STILLARI */
+        /* YANGILANGAN NATIJA PANELI */
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
@@ -192,35 +192,15 @@
             font-size: 14px; 
             color: #6c757d;
             margin-top: 0;
-            margin-bottom: 8px; 
+            margin-bottom: 12px; 
             font-weight: 600;
             letter-spacing: 0.5px;
-        }
-        .lot-result {
-            font-size: 38px; 
-            font-weight: 900; 
-            color: #0066ff;
-            margin-bottom: 12px; 
-            line-height: 1.1;
-        }
-        .lot-result span {
-            font-size: 20px;
-            font-weight: 900;
-            color: #0066ff;
         }
 
         .recommendation-box {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border-top: 1px solid #dee2e6;
-            padding-top: 12px;
-        }
-        .recommendation-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 4px;
         }
         .recommendation-cards {
             display: flex;
@@ -231,19 +211,30 @@
             background-color: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 8px;
-            text-align: left;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .rec-card .card-label {
             font-size: 11px;
             color: #6c757d;
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
         }
+        
+        /* QIYMATLAR FORMATI (Katta, qalin, to'q ko'k) */
         .rec-card .card-value {
-            font-size: 15px;
-            color: #212529;
-            font-weight: bold;
+            font-size: 24px; /* Katta shrift */
+            font-weight: 900; /* Qalin */
+            color: #0066ff; /* To'q ko'k */
+            line-height: 1.1;
+        }
+        .rec-card .card-value span {
+            font-size: 14px;
+            font-weight: 900;
         }
     </style>
 </head>
@@ -333,17 +324,15 @@
     <div class="result-box">
         <h3>Tavsiya qilingan</h3>
         
-        <div class="lot-result"><span id="resultLot">0.40</span> <span>lot</span></div>
-        
         <div class="recommendation-box">
             <div class="recommendation-cards">
                 <div class="rec-card">
                     <div class="card-label">Lot hajmi</div>
-                    <div class="card-value" id="recLotSize">0.40</div>
+                    <div class="card-value" id="recLotSize"><span>0.40</span> <span>lot</span></div>
                 </div>
                 <div class="rec-card">
                     <div class="card-label">Lot marjasi</div>
-                    <div class="card-value" id="recLotMargin">20.00 USD</div>
+                    <div class="card-value" id="recLotMargin">-</div>
                 </div>
             </div>
         </div>
@@ -356,7 +345,6 @@
     const riskAmountInput = document.getElementById('riskAmount');
     const stopLossInput = document.getElementById('stopLoss');
 
-    const resultLot = document.getElementById('resultLot');
     const recLotSize = document.getElementById('recLotSize');
     const recLotMargin = document.getElementById('recLotMargin');
     
@@ -412,7 +400,6 @@
 
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
-        let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
         
@@ -422,22 +409,25 @@
         }
 
         let effectiveStopValue = stopLoss + (spread * 1000);
-
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
-        resultLot.textContent = lot.toFixed(2); 
-        recLotSize.textContent = lot.toFixed(2);
+        // Lot hajmini yangilash (katta shrift, format: 0.40 lot)
+        recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        // LOT MARJASI HISOBLASH
-        // Lot Margin = (deposit × Leverage) / (Joriy narx × lot hajmi qiymati)
-        let leverageStr = leverageValueInput.value; // "1:20000"
-        let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
-        
-        let currentPrice = parseFloat(askPriceInput.value) || 4390.000; // Joriy narx sifatida Ask olinadi
-        
-        let margin = (accountSize * leverageNum) / (currentPrice * lot);
-        
-        recLotMargin.textContent = formatNumber(margin) + ' USD';
+        // LOT MARJASI HISOBLASH (Faqat Sets yoqilganda)
+        if (setsCheckbox.checked) {
+            let leverageStr = leverageValueInput.value; // "1:20000"
+            let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
+            
+            let currentPrice = parseFloat(askPriceInput.value) || 4390.000;
+            
+            let margin = (accountSize * leverageNum) / (currentPrice * lot);
+            
+            recLotMargin.textContent = formatNumber(margin) + ' USD';
+        } else {
+            // Sets o'chirilgan bo'lsa, "-" ko'rsatiladi
+            recLotMargin.textContent = '-';
+        }
     }
 
     function calculateSpread() {
@@ -594,7 +584,7 @@
     leverageValueInput.addEventListener('input', function() {
         formatLeverage();
         saveData();
-        calculate(); // Leverage o'zgarganda marja qayta hisoblansin
+        calculate();
     });
     leverageValueInput.addEventListener('keyup', formatLeverage);
 
