@@ -83,7 +83,6 @@
             pointer-events: none;
         }
         
-        /* SPREAD -> SETS O'ZGARTIRILDI */
         .sets-box {
             display: flex;
             flex-direction: column;
@@ -122,21 +121,51 @@
             font-weight: bold;
         }
 
-        .price-info {
+        /* YANGI NARX MA'LUMOTLARI UCHUN STILLAR */
+        .price-info-grid {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #6c757d;
+            flex-direction: column;
+            gap: 8px;
             padding: 8px 0;
             border-bottom: 1px solid #dee2e6;
             margin-bottom: 12px;
             margin-top: 5px;
         }
-        .price-value {
-            color: #495057; 
-            font-weight: normal; 
+        .price-row {
+            display: flex;
+            gap: 8px;
         }
+        .price-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .price-col label {
+            font-size: 11px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+        .price-col input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            background-color: #fff;
+            height: 32px;
+        }
+        .price-col input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        .price-col input[readonly] {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
         .result-box {
             background-color: #fff;
             border: 1px solid #ced4da;
@@ -235,9 +264,28 @@
         </div>
     </div>
 
-    <div class="price-info">
-        <span>XAUUSD</span>
-        <span class="price-value" id="goldPrice">4390.000</span>
+    <!-- YANGI 2 QATOR -->
+    <div class="price-info-grid">
+        <div class="price-row">
+            <div class="price-col">
+                <label>Ask</label>
+                <input type="number" id="askPrice" value="4390.000" step="0.001">
+            </div>
+            <div class="price-col">
+                <label>Bid</label>
+                <input type="number" id="bidPrice" value="4390.000" step="0.001">
+            </div>
+        </div>
+        <div class="price-row">
+            <div class="price-col">
+                <label>Spread</label>
+                <input type="text" id="spreadValue" value="0.000" readonly>
+            </div>
+            <div class="price-col">
+                <label>Leverage</label>
+                <input type="text" id="leverageValue" value="1:20000" placeholder="1:20000">
+            </div>
+        </div>
     </div>
 
     <div class="result-box">
@@ -269,7 +317,12 @@
     const pointValue = document.getElementById('pointValue');
     const effectiveStop = document.getElementById('effectiveStop');
     const calculatedRisk = document.getElementById('calculatedRisk');
-    const goldPriceDisplay = document.getElementById('goldPrice');
+    
+    // Yangi elementlar
+    const askPriceInput = document.getElementById('askPrice');
+    const bidPriceInput = document.getElementById('bidPrice');
+    const spreadValueInput = document.getElementById('spreadValue');
+    const leverageValueInput = document.getElementById('leverageValue');
 
     const valuePerPointPerLot = 0.10; 
 
@@ -303,6 +356,31 @@
         
         let stopLossDamageForOneLot = stopLoss * valuePerPointPerLot;
         pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
+    }
+
+    // SPREAD HISOBLASH (Ask - Bid)
+    function calculateSpread() {
+        let ask = parseFloat(askPriceInput.value) || 0;
+        let bid = parseFloat(bidPriceInput.value) || 0;
+        
+        // Spread = Ask - Bid (manfiy bo'lib qolmasligi uchun Math.abs ishlatildi)
+        let spread = Math.abs(ask - bid); 
+        
+        spreadValueInput.value = spread.toFixed(3);
+    }
+
+    // LEVERAGE FORMATLASH (Faqat raqamlarni qabul qiladi, boshiga "1:" qo'shadi)
+    function formatLeverage() {
+        let rawValue = leverageValueInput.value;
+        
+        // Barcha raqam bo'lmagan belgilarni o'chirish (masalan, "1:" ni olib tashlash)
+        let numbersOnly = rawValue.replace(/[^\d]/g, '');
+        
+        if (numbersOnly === '') {
+            leverageValueInput.value = '1:';
+        } else {
+            leverageValueInput.value = '1:' + numbersOnly;
+        }
     }
 
     function formatInputWithCaret(inputElement) {
@@ -389,15 +467,27 @@
 
     stopLossInput.addEventListener('input', calculate);
 
+    // Yangi maydonlar uchun event listenerlar
+    askPriceInput.addEventListener('input', calculateSpread);
+    bidPriceInput.addEventListener('input', calculateSpread);
+    
+    // Leverage kiritishni cheklash
+    leverageValueInput.addEventListener('input', formatLeverage);
+    leverageValueInput.addEventListener('blur', formatLeverage);
+
+    // Boshlang'ich qiymatlar
     accountSizeInput.value = "40.00";
     riskPercentInput.value = "100";
     riskAmountInput.value = "40.00";
     stopLossInput.value = "1000";
     
-    let initialPrice = 4390.000; 
-    goldPriceDisplay.textContent = initialPrice.toFixed(3);
+    askPriceInput.value = "4390.000";
+    bidPriceInput.value = "4390.000";
+    spreadValueInput.value = "0.000";
+    leverageValueInput.value = "1:20000";
 
     calculate();
+    calculateSpread();
 </script>
 
 </body>
