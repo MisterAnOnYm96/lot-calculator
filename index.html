@@ -69,6 +69,8 @@
         input:disabled, select:disabled {
             background-color: #e9ecef;
             color: #495057;
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .input-group {
             position: relative;
@@ -83,11 +85,17 @@
             pointer-events: none;
         }
         
+        /* SETS QISMI TO'G'RILANDI */
         .sets-box {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             height: 100%;
+            align-items: center; /* Markazga tekislash */
+        }
+        .sets-box label {
+            text-align: center;
+            width: 100%;
         }
         .sets-btn-container {
             display: flex;
@@ -121,12 +129,11 @@
             font-weight: bold;
         }
 
-        /* YANGI NARX MA'LUMOTLARI UCHUN STILLAR (ORALIQLAR TO'G'RILANDI) */
         .price-info-grid {
             display: flex;
             flex-direction: column;
-            gap: 12px; /* Orasi form-group bilan bir xil bo'ldi */
-            margin-bottom: 12px; /* Pastki oraliq ham bir xil */
+            gap: 12px;
+            margin-bottom: 12px;
             margin-top: 0;
         }
         .price-row {
@@ -162,6 +169,17 @@
         .price-col input[readonly] {
             background-color: #e9ecef;
             color: #495057;
+        }
+        
+        /* O'CHIQ HOLATDAGI MAYDONLAR UCHUN */
+        .price-info-grid.disabled input {
+            background-color: #e9ecef;
+            color: #495057;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .price-info-grid.disabled label {
+            opacity: 0.6;
         }
         
         .result-box {
@@ -262,26 +280,26 @@
         </div>
     </div>
 
-    <!-- YANGI 2 QATOR (ORALIQLAR BIR XIL) -->
-    <div class="price-info-grid">
+    <!-- 2 QATOR: STANDART HOLATDA O'CHIQ -->
+    <div class="price-info-grid disabled" id="priceInfoGrid">
         <div class="price-row">
             <div class="price-col">
                 <label>Ask</label>
-                <input type="number" id="askPrice" value="4390.000" step="0.001">
+                <input type="number" id="askPrice" value="4390.000" step="0.001" disabled>
             </div>
             <div class="price-col">
                 <label>Bid</label>
-                <input type="number" id="bidPrice" value="4390.000" step="0.001">
+                <input type="number" id="bidPrice" value="4390.000" step="0.001" disabled>
             </div>
         </div>
         <div class="price-row">
             <div class="price-col">
                 <label>Spread</label>
-                <input type="text" id="spreadValue" value="0.000" readonly>
+                <input type="text" id="spreadValue" value="0.000" readonly disabled>
             </div>
             <div class="price-col">
                 <label>Leverage</label>
-                <input type="text" id="leverageValue" value="1:20000" placeholder="1:20000">
+                <input type="text" id="leverageValue" value="1:20000" placeholder="1:20000" disabled>
             </div>
         </div>
     </div>
@@ -320,6 +338,9 @@
     const bidPriceInput = document.getElementById('bidPrice');
     const spreadValueInput = document.getElementById('spreadValue');
     const leverageValueInput = document.getElementById('leverageValue');
+    
+    const setsCheckbox = document.getElementById('sets');
+    const priceInfoGrid = document.getElementById('priceInfoGrid');
 
     const valuePerPointPerLot = 0.10; 
 
@@ -364,31 +385,23 @@
         spreadValueInput.value = spread.toFixed(3);
     }
 
-    // LEVERAGE TO'G'RILANDI (KURSOR SAQLANADI VA FAQAT RAQAMLAR KIRITILADI)
     function formatLeverage() {
         let input = leverageValueInput;
         let rawValue = input.value;
         
-        // "1:" dan keyingi qismni ajratib olish
         let afterColon = rawValue.substring(2);
-        
-        // Faqat raqamlarni qoldirish
         let numbersOnly = afterColon.replace(/[^\d]/g, '');
         
-        // Yangi qiymatni yaratish
         let formatted = '1:' + numbersOnly;
         
-        // Kursor pozitsiyasini saqlab qolish
         let caretPos = input.selectionStart;
         let oldLen = rawValue.length;
         
-        // Agar qiymat o'zgargan bo'lsa, yangilash
         if (rawValue !== formatted) {
             input.value = formatted;
             
-            // Kursor pozitsiyasini moslashtirish
             let newPos = caretPos + (formatted.length - oldLen);
-            if (newPos < 2) newPos = 2; // "1:" dan oldinga o'tib bo'lmaydi
+            if (newPos < 2) newPos = 2;
             if (newPos > formatted.length) newPos = formatted.length;
             
             input.setSelectionRange(newPos, newPos);
@@ -431,6 +444,24 @@
         if (digitCountBeforeCaret === 0) newCaretPos = 0;
         inputElement.setSelectionRange(newCaretPos, newCaretPos);
     }
+
+    // SETS CHECKBOX HODISASI
+    setsCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        
+        // Inputlarni aktiv yoki o'chiq qilish
+        askPriceInput.disabled = !isChecked;
+        bidPriceInput.disabled = !isChecked;
+        leverageValueInput.disabled = !isChecked;
+        spreadValueInput.disabled = !isChecked;
+        
+        // Grid klassini o'zgartirish
+        if (isChecked) {
+            priceInfoGrid.classList.remove('disabled');
+        } else {
+            priceInfoGrid.classList.add('disabled');
+        }
+    });
 
     riskPercentInput.addEventListener('input', function() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
@@ -482,7 +513,6 @@
     askPriceInput.addEventListener('input', calculateSpread);
     bidPriceInput.addEventListener('input', calculateSpread);
     
-    // Leverage uchun input va keyup (kursor bilan ishlash uchun)
     leverageValueInput.addEventListener('input', formatLeverage);
     leverageValueInput.addEventListener('keyup', formatLeverage);
 
