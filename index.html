@@ -82,19 +82,21 @@
             font-size: 11px;
             pointer-events: none;
         }
-        .spread-box {
+        
+        /* SPREAD -> SETS O'ZGARTIRILDI */
+        .sets-box {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             height: 100%;
         }
-        .spread-btn-container {
+        .sets-btn-container {
             display: flex;
             align-items: center;
             height: 32px;
             justify-content: center; 
         }
-        .spread-btn-container input[type="checkbox"] {
+        .sets-btn-container input[type="checkbox"] {
             width: 30px; 
             height: 30px; 
             cursor: pointer;
@@ -109,16 +111,17 @@
             align-items: center;
             transition: all 0.2s;
         }
-        .spread-btn-container input[type="checkbox"]:checked {
+        .sets-btn-container input[type="checkbox"]:checked {
             background-color: #0d6efd;
             border-color: #0d6efd;
         }
-        .spread-btn-container input[type="checkbox"]:checked::after {
+        .sets-btn-container input[type="checkbox"]:checked::after {
             content: '✓';
             color: white;
             font-size: 20px; 
             font-weight: bold;
         }
+
         .price-info {
             display: flex;
             justify-content: space-between;
@@ -148,22 +151,18 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-        
-        /* LOT NATIJASI UCHUN YANGI RANG VA QALINLIK */
         .lot-result {
             font-size: 38px; 
             font-weight: 900; 
-            color: #0066ff; /* To'q ko'k rang */
+            color: #0066ff;
             margin-bottom: 8px; 
             line-height: 1.1;
         }
-        
         .lot-result span {
             font-size: 20px;
-            font-weight: 900; /* "lot" so'zi ham qalin */
-            color: #0066ff;   /* "lot" so'zi ham to'q ko'k */
+            font-weight: 900;
+            color: #0066ff;
         }
-        
         .result-details {
             display: flex;
             justify-content: space-between;
@@ -210,10 +209,10 @@
             </div>
         </div>
         <div class="w-15">
-            <div class="spread-box">
-                <label>Spread</label>
-                <div class="spread-btn-container">
-                    <input type="checkbox" id="spread">
+            <div class="sets-box">
+                <label>Sets</label>
+                <div class="sets-btn-container">
+                    <input type="checkbox" id="sets">
                 </div>
             </div>
         </div>
