@@ -282,11 +282,13 @@
         <div class="price-row">
             <div class="price-col">
                 <label>Ask</label>
-                <input type="number" id="askPrice" value="4390.000" step="0.001" disabled>
+                <!-- TYPE TEXT QILINDI -->
+                <input type="text" id="askPrice" value="4390.000" disabled>
             </div>
             <div class="price-col">
                 <label>Bid</label>
-                <input type="number" id="bidPrice" value="4390.000" step="0.001" disabled>
+                <!-- TYPE TEXT QILINDI -->
+                <input type="text" id="bidPrice" value="4390.000" disabled>
             </div>
         </div>
         <div class="price-row">
@@ -341,7 +343,6 @@
 
     const valuePerPointPerLot = 0.10; 
 
-    // LOCAL STORAGE DAN MA'LUMOTLARNI YUKLASH
     function loadSavedData() {
         if (localStorage.getItem('askPrice')) {
             askPriceInput.value = localStorage.getItem('askPrice');
@@ -354,7 +355,6 @@
         }
     }
 
-    // LOCAL STORAGE GA MA'LUMOTLARNI SAQLASH
     function saveData() {
         localStorage.setItem('askPrice', askPriceInput.value);
         localStorage.setItem('bidPrice', bidPriceInput.value);
@@ -375,15 +375,28 @@
         return intPart + '.' + decPart;
     }
 
+    // ASK VA BID NI 0.000 FORMATIGA KELTIRISH
+    function formatPrice(inputElement) {
+        let rawValue = inputElement.value.replace(/[^\d.]/g, '');
+        let num = parseFloat(rawValue) || 0;
+        inputElement.value = num.toFixed(3);
+        calculateSpread();
+        saveData();
+    }
+
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
         
-        let spread = parseFloat(spreadValueInput.value) || 0;
+        // AGAR SETS O'CHIQ BO'LSA SPREAD = 0
+        let spread = 0;
+        if (setsCheckbox.checked) {
+            spread = parseFloat(spreadValueInput.value) || 0;
+        }
 
-        // SPREAD NI 1000 GA KO'PAYTIRIB STOP-LOSS GA QO'SHISH
+        // FORMULA: Stop-loss + (Spread * 1000) [faqat Sets yoqilganda]
         let effectiveStopValue = stopLoss + (spread * 1000);
 
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
@@ -406,7 +419,6 @@
         
         spreadValueInput.value = spread.toFixed(3);
         
-        // Spread o'zgarganda qayta hisoblash
         calculate();
     }
 
@@ -534,13 +546,22 @@
 
     stopLossInput.addEventListener('input', calculate);
 
+    // ASK VA BID INPUT HODISALARI
     askPriceInput.addEventListener('input', function() {
+        // Yozish paytida faqat raqam va nuqtaga ruxsat
+        this.value = this.value.replace(/[^\d.]/g, '');
         calculateSpread();
-        saveData();
     });
+    askPriceInput.addEventListener('blur', function() {
+        formatPrice(this);
+    });
+
     bidPriceInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^\d.]/g, '');
         calculateSpread();
-        saveData();
+    });
+    bidPriceInput.addEventListener('blur', function() {
+        formatPrice(this);
     });
     
     leverageValueInput.addEventListener('input', function() {
