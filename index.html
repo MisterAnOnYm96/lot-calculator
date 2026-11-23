@@ -341,6 +341,26 @@
 
     const valuePerPointPerLot = 0.10; 
 
+    // LOCAL STORAGE DAN MA'LUMOTLARNI YUKLASH
+    function loadSavedData() {
+        if (localStorage.getItem('askPrice')) {
+            askPriceInput.value = localStorage.getItem('askPrice');
+        }
+        if (localStorage.getItem('bidPrice')) {
+            bidPriceInput.value = localStorage.getItem('bidPrice');
+        }
+        if (localStorage.getItem('leverageValue')) {
+            leverageValueInput.value = localStorage.getItem('leverageValue');
+        }
+    }
+
+    // LOCAL STORAGE GA MA'LUMOTLARNI SAQLASH
+    function saveData() {
+        localStorage.setItem('askPrice', askPriceInput.value);
+        localStorage.setItem('bidPrice', bidPriceInput.value);
+        localStorage.setItem('leverageValue', leverageValueInput.value);
+    }
+
     function parseFormattedNumber(str) {
         if (!str) return 0;
         let cleanStr = str.toString().replace(/\s/g, '').replace(',', '.');
@@ -355,30 +375,25 @@
         return intPart + '.' + decPart;
     }
 
-    // YANGILANGAN HISOBLASH FUNKSIYASI (Stop-loss + Spread)
     function calculate() {
         let accountSize = parseFormattedNumber(accountSizeInput.value);
         let riskPercent = parseFloat(riskPercentInput.value) || 0;
         let riskAmount = parseFormattedNumber(riskAmountInput.value);
         let stopLoss = parseFloat(stopLossInput.value) || 1; 
         
-        // Spread qiymatini olish (agar Sets o'chiq bo'lsa 0.000 bo'ladi)
         let spread = parseFloat(spreadValueInput.value) || 0;
 
-        // Stop-loss + Spread (Samarali stop)
-        let effectiveStopValue = stopLoss + spread;
+        // SPREAD NI 1000 GA KO'PAYTIRIB STOP-LOSS GA QO'SHISH
+        let effectiveStopValue = stopLoss + (spread * 1000);
 
-        // Lot hisoblash
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
         resultLot.textContent = lot.toFixed(2); 
         
-        // Samarali stopni ko'rsatish (butun son)
         effectiveStop.textContent = Math.round(effectiveStopValue) + ' punkt';
         
         calculatedRisk.textContent = formatNumber(riskAmount) + ' USD';
         
-        // 1 lot zarari (Stop-loss + Spread) * 0.10
         let stopLossDamageForOneLot = effectiveStopValue * valuePerPointPerLot;
         pointValue.textContent = '-' + formatNumber(stopLossDamageForOneLot) + ' USD';
     }
@@ -467,12 +482,8 @@
             priceInfoGrid.classList.remove('disabled');
         } else {
             priceInfoGrid.classList.add('disabled');
-            // Sets o'chirilganda spread 0 ga qaytishi kerak (ixtiyoriy)
-            // spreadValueInput.value = "0.000"; 
-            // calculate(); 
         }
         
-        // O'zgarishdan keyin qayta hisoblash (agar kerak bo'lsa)
         calculate();
     });
 
@@ -523,22 +534,33 @@
 
     stopLossInput.addEventListener('input', calculate);
 
-    askPriceInput.addEventListener('input', calculateSpread);
-    bidPriceInput.addEventListener('input', calculateSpread);
+    askPriceInput.addEventListener('input', function() {
+        calculateSpread();
+        saveData();
+    });
+    bidPriceInput.addEventListener('input', function() {
+        calculateSpread();
+        saveData();
+    });
     
-    leverageValueInput.addEventListener('input', formatLeverage);
+    leverageValueInput.addEventListener('input', function() {
+        formatLeverage();
+        saveData();
+    });
     leverageValueInput.addEventListener('keyup', formatLeverage);
 
-    // Boshlang'ich qiymatlar
+    // SAHIFA YUKLANGANDA MA'LUMOTLARNI TIKLASH
+    loadSavedData();
+
+    // Boshlang'ich qiymatlar (agar LocalStorage da ma'lumot bo'lmasa)
+    if (!localStorage.getItem('askPrice')) askPriceInput.value = "4390.000";
+    if (!localStorage.getItem('bidPrice')) bidPriceInput.value = "4390.000";
+    if (!localStorage.getItem('leverageValue')) leverageValueInput.value = "1:20000";
+    
     accountSizeInput.value = "40.00";
     riskPercentInput.value = "100";
     riskAmountInput.value = "40.00";
     stopLossInput.value = "1000";
-    
-    askPriceInput.value = "4390.000";
-    bidPriceInput.value = "4390.000";
-    spreadValueInput.value = "0.000";
-    leverageValueInput.value = "1:20000";
 
     calculate();
     calculateSpread();
