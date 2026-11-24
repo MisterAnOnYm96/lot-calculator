@@ -39,8 +39,6 @@
         }
         .w-70 { width: 70%; }
         .w-30 { width: 30%; }
-        .w-45 { width: 45%; }
-        .w-40 { width: 40%; }
         .w-50 { width: 50%; }
         label {
             display: block;
@@ -140,14 +138,14 @@
             width: 100%;
         }
         .spread-input-part {
-            flex: 1; /* Spread input qolgan joyni egallaydi */
+            flex: 1;
         }
         .sets-btn-part {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            width: 30px; /* Tugma o'lchami bilan bir xil */
-            flex-shrink: 0; /* Tugma siqilib qolmasligi uchun */
+            width: 30px;
+            flex-shrink: 0;
         }
         
         .sets-btn-part label {
@@ -285,13 +283,13 @@
         </div>
     </div>
 
-    <!-- Sets tugmasi bu yerdan OLIB TASHLANDI -->
+    <!-- DEPOSIT VA STOP-LOSS 50/50 QILINDI -->
     <div class="row form-group">
-        <div class="w-45">
+        <div class="w-50">
             <label>Deposit ($)</label>
             <input type="text" id="accountSize" value="40.00">
         </div>
-        <div class="w-55" style="width: 55%;">
+        <div class="w-50">
             <label>Stop-loss</label>
             <div class="input-group">
                 <input type="number" id="stopLoss" value="1000" step="1">
@@ -317,7 +315,7 @@
         </div>
     </div>
 
-    <!-- ASK VA SPREAD/SETS QATORI (50% / 50%) -->
+    <!-- ASK VA SPREAD/SETS QATORI -->
     <div class="price-info-grid disabled" id="priceInfoGrid">
         <div class="price-row">
             <div class="price-col">
