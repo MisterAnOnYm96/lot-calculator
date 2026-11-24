@@ -225,14 +225,12 @@
             text-transform: uppercase;
         }
         
-        /* QIYMATLAR FORMATI (Katta, qalin, to'q ko'k) */
         .rec-card .card-value {
             font-size: 24px;
             font-weight: 900;
             color: #0066ff;
             line-height: 1.1;
         }
-        /* LOT VA USD SO'ZLARI UCHUN KICHIK SHRIFT */
         .rec-card .card-value span {
             font-size: 14px;
             font-weight: 900;
@@ -357,6 +355,7 @@
     const priceInfoGrid = document.getElementById('priceInfoGrid');
 
     const valuePerPointPerLot = 0.10; 
+    const contractSize = 100; // KONTRAKT HAJMI QO'SHILDI
 
     function loadSavedData() {
         if (localStorage.getItem('askPrice')) {
@@ -411,22 +410,20 @@
         let effectiveStopValue = stopLoss + (spread * 1000);
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
-        // Lot hajmini yangilash (katta shrift, format: 0.40 lot)
         recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        // LOT MARJASI HISOBLASH (Faqat Sets yoqilganda)
+        // LOT MARJASI HISOBLASH (YANGI FORMULA)
         if (setsCheckbox.checked) {
-            let leverageStr = leverageValueInput.value; // "1:20000"
+            let leverageStr = leverageValueInput.value; 
             let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
             
             let currentPrice = parseFloat(askPriceInput.value) || 4390.000;
             
-            let margin = (accountSize * leverageNum) / (currentPrice * lot);
+            // YANGI FORMULA: (lot hajmi * ask narxi * kontrakt hajmi) / leverage
+            let margin = (lot * currentPrice * contractSize) / leverageNum;
             
-            // USD so'zini kichik shriftda chiqarish
             recLotMargin.innerHTML = formatNumber(margin) + ' <span>USD</span>';
         } else {
-            // Sets o'chirilgan bo'lsa, "-" ko'rsatiladi
             recLotMargin.textContent = '-';
         }
     }
