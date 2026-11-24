@@ -186,7 +186,7 @@
             border: 1px solid #ced4da;
             border-radius: 8px;
             padding: 12px;
-            text-align: center;
+            text-align: center; /* Tepasidagi "Tavsiya qilingan" markazda qolishi uchun */
         }
         .result-box h3 {
             font-size: 14px; 
@@ -204,35 +204,39 @@
         }
         .recommendation-cards {
             display: flex;
+            flex-direction: column; /* Ustma-ust joylashtirish */
             gap: 8px;
         }
         .rec-card {
-            flex: 1;
             background-color: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 12px 8px;
-            text-align: center;
+            padding: 12px 16px;
+            
+            /* ICHIDAGI ELEMENTLARNI CHAPGA VA O'NGGA JOYLASHTIRISH */
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: space-between;
+            align-items: center; 
         }
         .rec-card .card-label {
-            font-size: 11px;
-            color: #6c757d;
+            font-size: 13px; /* Matn biroz kattaroq */
+            color: #495057;
             font-weight: 600;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            margin-bottom: 0; /* Pastki oraliq olib tashlandi */
+            /* text-transform: uppercase; O'CHIRILDI */
         }
         
+        /* QIYMATLAR FORMATI (Katta, qalin, to'q ko'k) */
         .rec-card .card-value {
-            font-size: 24px;
+            font-size: 20px; /* Kattaroq */
             font-weight: 900;
             color: #0066ff;
             line-height: 1.1;
+            text-align: right; /* O'ngga tekislash */
         }
         .rec-card .card-value span {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 900;
         }
     </style>
@@ -326,7 +330,7 @@
             <div class="recommendation-cards">
                 <div class="rec-card">
                     <div class="card-label">Lot hajmi</div>
-                    <div class="card-value" id="recLotSize"><span>0.40</span> <span>lot</span></div>
+                    <div class="card-value" id="recLotSize">0.40 <span>lot</span></div>
                 </div>
                 <div class="rec-card">
                     <div class="card-label">Lot marjasi</div>
@@ -355,7 +359,7 @@
     const priceInfoGrid = document.getElementById('priceInfoGrid');
 
     const valuePerPointPerLot = 0.10; 
-    const contractSize = 100; // KONTRAKT HAJMI QO'SHILDI
+    const contractSize = 100; 
 
     function loadSavedData() {
         if (localStorage.getItem('askPrice')) {
@@ -410,16 +414,16 @@
         let effectiveStopValue = stopLoss + (spread * 1000);
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
+        // Lot hajmini yangilash
         recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        // LOT MARJASI HISOBLASH (YANGI FORMULA)
+        // LOT MARJASI HISOBLASH
         if (setsCheckbox.checked) {
             let leverageStr = leverageValueInput.value; 
             let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
             
             let currentPrice = parseFloat(askPriceInput.value) || 4390.000;
             
-            // YANGI FORMULA: (lot hajmi * ask narxi * kontrakt hajmi) / leverage
             let margin = (lot * currentPrice * contractSize) / leverageNum;
             
             recLotMargin.innerHTML = formatNumber(margin) + ' <span>USD</span>';
