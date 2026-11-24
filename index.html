@@ -165,10 +165,6 @@
             border-color: #80bdff;
             box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
         }
-        .price-col input[readonly] {
-            background-color: #e9ecef;
-            color: #495057;
-        }
         
         .price-info-grid.disabled input {
             background-color: #e9ecef;
@@ -320,25 +316,16 @@
         </div>
     </div>
 
+    <!-- ASK VA SPREAD QATORI -->
     <div class="price-info-grid disabled" id="priceInfoGrid">
         <div class="price-row">
             <div class="price-col">
                 <label>Ask</label>
-                <input type="text" id="askPrice" value="4390.000" disabled>
+                <input type="text" id="askPrice" value="3650.000" disabled>
             </div>
-            <div class="price-col">
-                <label>Bid</label>
-                <input type="text" id="bidPrice" value="4390.000" disabled>
-            </div>
-        </div>
-        <div class="price-row">
             <div class="price-col">
                 <label>Spread</label>
-                <input type="text" id="spreadValue" value="0.000" readonly disabled>
-            </div>
-            <div class="price-col">
-                <label>Leverage</label>
-                <input type="text" id="leverageValue" value="1:20000" placeholder="1:20000" disabled>
+                <input type="text" id="spreadValue" value="0.000" disabled>
             </div>
         </div>
     </div>
@@ -371,33 +358,13 @@
     const recSpreadDamage = document.getElementById('recSpreadDamage');
     
     const askPriceInput = document.getElementById('askPrice');
-    const bidPriceInput = document.getElementById('bidPrice');
     const spreadValueInput = document.getElementById('spreadValue');
-    const leverageValueInput = document.getElementById('leverageValue');
     
     const setsCheckbox = document.getElementById('sets');
     const priceInfoGrid = document.getElementById('priceInfoGrid');
 
     const valuePerPointPerLot = 0.10; 
     const contractSize = 100; 
-
-    function loadSavedData() {
-        if (localStorage.getItem('askPrice')) {
-            askPriceInput.value = localStorage.getItem('askPrice');
-        }
-        if (localStorage.getItem('bidPrice')) {
-            bidPriceInput.value = localStorage.getItem('bidPrice');
-        }
-        if (localStorage.getItem('leverageValue')) {
-            leverageValueInput.value = localStorage.getItem('leverageValue');
-        }
-    }
-
-    function saveData() {
-        localStorage.setItem('askPrice', askPriceInput.value);
-        localStorage.setItem('bidPrice', bidPriceInput.value);
-        localStorage.setItem('leverageValue', leverageValueInput.value);
-    }
 
     function parseFormattedNumber(str) {
         if (!str) return 0;
@@ -417,8 +384,7 @@
         let rawValue = inputElement.value.replace(/[^\d.]/g, '');
         let num = parseFloat(rawValue) || 0;
         inputElement.value = num.toFixed(3);
-        calculateSpread();
-        saveData();
+        calculate();
     }
 
     function calculate() {
@@ -436,45 +402,8 @@
 
         recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        // SPREAD ZARARINI HISOBLASH
-        // Formula: Tavsiya qilingan lot * Spread * Kontrakt hajmi (100)
         let spreadDamage = lot * spread * contractSize;
-        
         recSpreadDamage.innerHTML = formatNumber(spreadDamage) + ' <span>USD</span>';
-    }
-
-    function calculateSpread() {
-        let ask = parseFloat(askPriceInput.value) || 0;
-        let bid = parseFloat(bidPriceInput.value) || 0;
-        
-        let spread = Math.abs(ask - bid); 
-        
-        spreadValueInput.value = spread.toFixed(3);
-        
-        calculate();
-    }
-
-    function formatLeverage() {
-        let input = leverageValueInput;
-        let rawValue = input.value;
-        
-        let afterColon = rawValue.substring(2);
-        let numbersOnly = afterColon.replace(/[^\d]/g, '');
-        
-        let formatted = '1:' + numbersOnly;
-        
-        let caretPos = input.selectionStart;
-        let oldLen = rawValue.length;
-        
-        if (rawValue !== formatted) {
-            input.value = formatted;
-            
-            let newPos = caretPos + (formatted.length - oldLen);
-            if (newPos < 2) newPos = 2;
-            if (newPos > formatted.length) newPos = formatted.length;
-            
-            input.setSelectionRange(newPos, newPos);
-        }
     }
 
     function formatInputWithCaret(inputElement) {
@@ -518,8 +447,6 @@
         const isChecked = this.checked;
         
         askPriceInput.disabled = !isChecked;
-        bidPriceInput.disabled = !isChecked;
-        leverageValueInput.disabled = !isChecked;
         spreadValueInput.disabled = !isChecked;
         
         if (isChecked) {
@@ -580,40 +507,21 @@
 
     askPriceInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^\d.]/g, '');
-        calculateSpread();
+        calculate();
     });
     askPriceInput.addEventListener('blur', function() {
         formatPrice(this);
     });
 
-    bidPriceInput.addEventListener('input', function() {
+    spreadValueInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^\d.]/g, '');
-        calculateSpread();
-    });
-    bidPriceInput.addEventListener('blur', function() {
-        formatPrice(this);
-    });
-    
-    leverageValueInput.addEventListener('input', function() {
-        formatLeverage();
-        saveData();
         calculate();
     });
-    leverageValueInput.addEventListener('keyup', formatLeverage);
-
-    loadSavedData();
-
-    if (!localStorage.getItem('askPrice')) askPriceInput.value = "4390.000";
-    if (!localStorage.getItem('bidPrice')) bidPriceInput.value = "4390.000";
-    if (!localStorage.getItem('leverageValue')) leverageValueInput.value = "1:20000";
-    
-    accountSizeInput.value = "40.00";
-    riskPercentInput.value = "100";
-    riskAmountInput.value = "40.00";
-    stopLossInput.value = "1000";
+    spreadValueInput.addEventListener('blur', function() {
+        formatPrice(this);
+    });
 
     calculate();
-    calculateSpread();
 </script>
 
 </body>
