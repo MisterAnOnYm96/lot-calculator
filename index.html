@@ -186,7 +186,7 @@
             border: 1px solid #ced4da;
             border-radius: 8px;
             padding: 12px;
-            text-align: center; /* Tepasidagi "Tavsiya qilingan" markazda qolishi uchun */
+            text-align: center;
         }
         .result-box h3 {
             font-size: 14px; 
@@ -204,39 +204,59 @@
         }
         .recommendation-cards {
             display: flex;
-            flex-direction: column; /* Ustma-ust joylashtirish */
             gap: 8px;
         }
         .rec-card {
+            flex: 1;
             background-color: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 12px 16px;
-            
-            /* ICHIDAGI ELEMENTLARNI CHAPGA VA O'NGGA JOYLASHTIRISH */
+            padding: 12px 8px;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center; 
         }
         .rec-card .card-label {
-            font-size: 13px; /* Matn biroz kattaroq */
-            color: #495057;
+            font-size: 11px;
+            color: #6c757d;
             font-weight: 600;
-            margin-bottom: 0; /* Pastki oraliq olib tashlandi */
-            /* text-transform: uppercase; O'CHIRILDI */
+            margin-bottom: 6px;
         }
         
-        /* QIYMATLAR FORMATI (Katta, qalin, to'q ko'k) */
-        .rec-card .card-value {
-            font-size: 20px; /* Kattaroq */
+        /* CHAP KARTA: Lot hajmi */
+        .rec-card:first-child {
+            align-items: flex-start; /* Sarlavha va qiymatni chapga tekislash */
+        }
+        .rec-card:first-child .card-label {
+            text-align: left;
+            width: 100%;
+        }
+        .rec-card:first-child .card-value {
+            text-align: right;
+            width: 100%; /* Qiymatni o'ngga surish */
+        }
+
+        /* O'NG KARTA: Lot marjasi */
+        .rec-card:last-child {
+            align-items: flex-start; /* Sarlavhani chapga tekislash */
+        }
+        .rec-card:last-child .card-label {
+            text-align: left;
+            width: 100%;
+        }
+        .rec-card:last-child .card-value {
+            text-align: right;
+            width: 100%; /* Qiymatni o'ngga surish */
+        }
+        
+        .card-value {
+            font-size: 24px;
             font-weight: 900;
             color: #0066ff;
             line-height: 1.1;
-            text-align: right; /* O'ngga tekislash */
         }
-        .rec-card .card-value span {
-            font-size: 12px;
+        .card-value span {
+            font-size: 14px;
             font-weight: 900;
         }
     </style>
@@ -330,7 +350,7 @@
             <div class="recommendation-cards">
                 <div class="rec-card">
                     <div class="card-label">Lot hajmi</div>
-                    <div class="card-value" id="recLotSize">0.40 <span>lot</span></div>
+                    <div class="card-value" id="recLotSize"><span>0.40</span> <span>lot</span></div>
                 </div>
                 <div class="rec-card">
                     <div class="card-label">Lot marjasi</div>
@@ -414,14 +434,11 @@
         let effectiveStopValue = stopLoss + (spread * 1000);
         let lot = riskAmount / (effectiveStopValue * valuePerPointPerLot);
 
-        // Lot hajmini yangilash
         recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        // LOT MARJASI HISOBLASH
         if (setsCheckbox.checked) {
             let leverageStr = leverageValueInput.value; 
             let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
-            
             let currentPrice = parseFloat(askPriceInput.value) || 4390.000;
             
             let margin = (lot * currentPrice * contractSize) / leverageNum;
