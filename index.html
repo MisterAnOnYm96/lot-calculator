@@ -225,7 +225,7 @@
         
         /* CHAP KARTA: Lot hajmi */
         .rec-card:first-child {
-            align-items: flex-start; /* Sarlavha va qiymatni chapga tekislash */
+            align-items: flex-start;
         }
         .rec-card:first-child .card-label {
             text-align: left;
@@ -233,12 +233,12 @@
         }
         .rec-card:first-child .card-value {
             text-align: right;
-            width: 100%; /* Qiymatni o'ngga surish */
+            width: 100%;
         }
 
-        /* O'NG KARTA: Lot marjasi */
+        /* O'NG KARTA: Spread zarari */
         .rec-card:last-child {
-            align-items: flex-start; /* Sarlavhani chapga tekislash */
+            align-items: flex-start;
         }
         .rec-card:last-child .card-label {
             text-align: left;
@@ -246,7 +246,7 @@
         }
         .rec-card:last-child .card-value {
             text-align: right;
-            width: 100%; /* Qiymatni o'ngga surish */
+            width: 100%;
         }
         
         .card-value {
@@ -353,8 +353,8 @@
                     <div class="card-value" id="recLotSize"><span>0.40</span> <span>lot</span></div>
                 </div>
                 <div class="rec-card">
-                    <div class="card-label">Lot marjasi</div>
-                    <div class="card-value" id="recLotMargin">-</div>
+                    <div class="card-label">Spread zarari</div>
+                    <div class="card-value" id="recSpreadDamage">0.00 <span>USD</span></div>
                 </div>
             </div>
         </div>
@@ -368,7 +368,7 @@
     const stopLossInput = document.getElementById('stopLoss');
 
     const recLotSize = document.getElementById('recLotSize');
-    const recLotMargin = document.getElementById('recLotMargin');
+    const recSpreadDamage = document.getElementById('recSpreadDamage');
     
     const askPriceInput = document.getElementById('askPrice');
     const bidPriceInput = document.getElementById('bidPrice');
@@ -436,17 +436,11 @@
 
         recLotSize.innerHTML = lot.toFixed(2) + ' <span>lot</span>';
 
-        if (setsCheckbox.checked) {
-            let leverageStr = leverageValueInput.value; 
-            let leverageNum = parseFloat(leverageStr.split(':')[1]) || 1;
-            let currentPrice = parseFloat(askPriceInput.value) || 4390.000;
-            
-            let margin = (lot * currentPrice * contractSize) / leverageNum;
-            
-            recLotMargin.innerHTML = formatNumber(margin) + ' <span>USD</span>';
-        } else {
-            recLotMargin.textContent = '-';
-        }
+        // SPREAD ZARARINI HISOBLASH
+        // Formula: Tavsiya qilingan lot * Spread * Kontrakt hajmi (100)
+        let spreadDamage = lot * spread * contractSize;
+        
+        recSpreadDamage.innerHTML = formatNumber(spreadDamage) + ' <span>USD</span>';
     }
 
     function calculateSpread() {
