@@ -41,7 +41,6 @@
         .w-30 { width: 30%; }
         .w-45 { width: 45%; }
         .w-40 { width: 40%; }
-        .w-15 { width: 15%; }
         .w-50 { width: 50%; }
         label {
             display: block;
@@ -83,49 +82,6 @@
             color: #6c757d;
             font-size: 11px;
             pointer-events: none;
-        }
-        
-        .sets-box {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            height: 100%;
-            align-items: center;
-        }
-        .sets-box label {
-            text-align: center;
-            width: 100%;
-        }
-        .sets-btn-container {
-            display: flex;
-            align-items: center;
-            height: 32px;
-            justify-content: center; 
-        }
-        .sets-btn-container input[type="checkbox"] {
-            width: 30px; 
-            height: 30px; 
-            cursor: pointer;
-            margin: 0;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            background-color: #fff;
-            appearance: none;
-            -webkit-appearance: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s;
-        }
-        .sets-btn-container input[type="checkbox"]:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        .sets-btn-container input[type="checkbox"]:checked::after {
-            content: '✓';
-            color: white;
-            font-size: 20px; 
-            font-weight: bold;
         }
 
         .price-info-grid {
@@ -175,7 +131,61 @@
         .price-info-grid.disabled label {
             opacity: 0.6;
         }
+
+        /* SPREAD VA SETS YONMA-YON JOYLASHUVI */
+        .spread-sets-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            width: 100%;
+        }
+        .spread-input-part {
+            flex: 1; /* Spread input qolgan joyni egallaydi */
+        }
+        .sets-btn-part {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            width: 30px; /* Tugma o'lchami bilan bir xil */
+            flex-shrink: 0; /* Tugma siqilib qolmasligi uchun */
+        }
         
+        .sets-btn-part label {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .sets-btn-container {
+            display: flex;
+            align-items: center;
+            height: 32px;
+            justify-content: center; 
+        }
+        .sets-btn-container input[type="checkbox"] {
+            width: 30px; 
+            height: 30px; 
+            cursor: pointer;
+            margin: 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .sets-btn-container input[type="checkbox"]:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .sets-btn-container input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 20px; 
+            font-weight: bold;
+        }
+
         /* NATIJA PANELI */
         .result-box {
             background-color: #fff;
@@ -219,7 +229,6 @@
             margin-bottom: 6px;
         }
         
-        /* CHAP KARTA: Lot hajmi */
         .rec-card:first-child {
             align-items: flex-start;
         }
@@ -232,7 +241,6 @@
             width: 100%;
         }
 
-        /* O'NG KARTA: Spread zarari */
         .rec-card:last-child {
             align-items: flex-start;
         }
@@ -277,24 +285,17 @@
         </div>
     </div>
 
+    <!-- Sets tugmasi bu yerdan OLIB TASHLANDI -->
     <div class="row form-group">
         <div class="w-45">
             <label>Deposit ($)</label>
             <input type="text" id="accountSize" value="40.00">
         </div>
-        <div class="w-40">
+        <div class="w-55" style="width: 55%;">
             <label>Stop-loss</label>
             <div class="input-group">
                 <input type="number" id="stopLoss" value="1000" step="1">
                 <span class="suffix">punkt</span>
-            </div>
-        </div>
-        <div class="w-15">
-            <div class="sets-box">
-                <label>Sets</label>
-                <div class="sets-btn-container">
-                    <input type="checkbox" id="sets">
-                </div>
             </div>
         </div>
     </div>
@@ -316,7 +317,7 @@
         </div>
     </div>
 
-    <!-- ASK VA SPREAD QATORI -->
+    <!-- ASK VA SPREAD/SETS QATORI (50% / 50%) -->
     <div class="price-info-grid disabled" id="priceInfoGrid">
         <div class="price-row">
             <div class="price-col">
@@ -324,8 +325,18 @@
                 <input type="text" id="askPrice" value="3650.000" disabled>
             </div>
             <div class="price-col">
-                <label>Spread</label>
-                <input type="text" id="spreadValue" value="0.000" disabled>
+                <div class="spread-sets-wrapper">
+                    <div class="spread-input-part">
+                        <label>Spread</label>
+                        <input type="text" id="spreadValue" value="0.000" disabled>
+                    </div>
+                    <div class="sets-btn-part">
+                        <label>Sets</label>
+                        <div class="sets-btn-container">
+                            <input type="checkbox" id="sets">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
